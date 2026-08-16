@@ -18,7 +18,7 @@ import {
 import { allQuestions, categories } from "../data/questions";
 import type { Question } from "../types";
 
-function QuestionBankPage({
+export function QuestionBankPage({
   user,
   onLogout,
   theme,
@@ -252,5 +252,3 @@ function QuestionBankPage({
     </div>
   );
 }
-
-export default QuestionBankPage;
