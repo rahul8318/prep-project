@@ -6,8 +6,10 @@ import {
   PlayCircle,
   Star,
   TimerReset,
+  XCircle,
 } from "lucide-react";
 import { Button, Card, ProgressBar } from "../components/ui";
+import { interviewApi } from "../services/interviewApi";
 import type { InterviewResult } from "../types";
 
 const interviewModes = ["Frontend", "Backend", "Full Stack", "System Design"];
@@ -28,47 +30,65 @@ export function MockInterviewPage({
   const [difficulty, setDifficulty] = useState("Intermediate");
   const [started, setStarted] = useState(false);
   const [timeLeft, setTimeLeft] = useState(15 * 60);
-  const [score, setScore] = useState(86);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [sessionId, setSessionId] = useState<string | null>(null);
+  const [questions, setQuestions] = useState<
+    Array<{ id: string; question: string; topic: string; difficulty: string }>
+  >([]);
+  const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [result, setResult] = useState<InterviewResult | null>(null);
 
   const progress = useMemo(
     () => ((15 * 60 - timeLeft) / (15 * 60)) * 100,
     [timeLeft],
   );
 
-  const startSession = () => {
-    setStarted(true);
-    setTimeLeft(15 * 60);
+  const startSession = async () => {
+    if (!user) {
+      setError("Please log in to start an interview.");
+      return;
+    }
+    setLoading(true);
+    setError("");
+    try {
+      const res = await interviewApi.startInterview({
+        category: mode,
+        difficulty,
+      });
+
+      if (res.success && res.data) {
+        setSessionId(res.data.sessionId);
+        setQuestions(res.data.questions);
+        setStarted(true);
+        setTimeLeft(15 * 60);
+      } else {
+        setError("Failed to start interview. Please try again.");
+      }
+    } catch {
+      setError("Failed to start interview. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const finishInterview = () => {
-    const result: InterviewResult = {
-      id: `mock-${Date.now()}`,
-      technology: mode,
-      difficulty,
-      score,
-      technicalKnowledge: 89,
-      accuracy: 90,
-      timeManagement: 82,
-      strongAreas: ["JS fundamentals", "Problem solving", "Communication"],
-      weakAreas: ["System design depth", "Backend tradeoffs"],
-      recommendedTopics: ["React rendering", "REST APIs", "Async patterns"],
-      suggestedQuestions: [
-        "Explain hydration and SSR tradeoffs",
-        "Design a scalable chat API",
-      ],
-      createdAt: new Date().toISOString(),
-    };
-
-    localStorage.setItem(
-      "interviewhub-mock-results",
-      JSON.stringify([
-        ...JSON.parse(
-          localStorage.getItem("interviewhub-mock-results") || "[]",
-        ),
-        result,
-      ]),
-    );
-    setStarted(false);
+  const finishInterview = async () => {
+    if (!sessionId) return;
+    setLoading(true);
+    setError("");
+    try {
+      const res = await interviewApi.completeInterview(sessionId);
+      if (res.success && res.data) {
+        setResult(res.data);
+        setStarted(false);
+      } else {
+        setError("Failed to complete interview. Please try again.");
+      }
+    } catch {
+      setError("Failed to complete interview. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -99,7 +119,15 @@ export function MockInterviewPage({
           </div>
         </div>
 
-        {!started ? (
+        {loading ? (
+          <Card className="p-6">
+            <div className="h-64 animate-pulse rounded-2xl bg-slate-100 dark:bg-slate-800" />
+          </Card>
+        ) : error ? (
+          <Card className="p-6 text-center text-sm text-rose-600 dark:text-rose-400">
+            {error}
+          </Card>
+        ) : !started ? (
           <div className="grid gap-6 lg:grid-cols-[1fr_0.75fr]">
             <Card className="p-6">
               <div className="flex items-center gap-3 text-sky-600">
@@ -151,7 +179,11 @@ export function MockInterviewPage({
               </div>
 
               <div className="mt-6 flex gap-3">
-                <Button onClick={startSession} className="gap-2">
+                <Button
+                  onClick={startSession}
+                  className="gap-2"
+                  disabled={loading}
+                >
                   <PlayCircle size={16} /> Start interview
                 </Button>
                 <Button variant="secondary">View rubric</Button>
@@ -165,7 +197,10 @@ export function MockInterviewPage({
               <div className="mt-5 space-y-4">
                 {[
                   { label: "Duration", value: "15 min" },
-                  { label: "Questions", value: "5 rounds" },
+                  {
+                    label: "Questions",
+                    value: `${questions.length || 0} rounds`,
+                  },
                   { label: "Evaluation", value: "Live score" },
                   { label: "Focus", value: "Communication + depth" },
                 ].map((item) => (
@@ -184,6 +219,81 @@ export function MockInterviewPage({
               </div>
             </Card>
           </div>
+        ) : result ? (
+          <Card className="p-6">
+            <div className="mb-6 flex items-center gap-3 text-2xl font-bold text-slate-900 dark:text-white">
+              <CheckCircle2 className="text-emerald-500" /> Interview completed
+            </div>
+            <div className="grid gap-4 md:grid-cols-3">
+              <div className="rounded-2xl bg-slate-50 p-4 dark:bg-slate-800/40">
+                <p className="text-sm text-slate-500 dark:text-slate-400">
+                  Overall score
+                </p>
+                <p className="mt-2 text-3xl font-bold">{result.score}%</p>
+              </div>
+              <div className="rounded-2xl bg-slate-50 p-4 dark:bg-slate-800/40">
+                <p className="text-sm text-slate-500 dark:text-slate-400">
+                  Technical
+                </p>
+                <p className="mt-2 text-3xl font-bold">
+                  {result.technicalScore}%
+                </p>
+              </div>
+              <div className="rounded-2xl bg-slate-50 p-4 dark:bg-slate-800/40">
+                <p className="text-sm text-slate-500 dark:text-slate-400">
+                  Communication
+                </p>
+                <p className="mt-2 text-3xl font-bold">
+                  {result.communicationScore}%
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-8 grid gap-6 md:grid-cols-2">
+              <div>
+                <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
+                  Strengths
+                </h3>
+                <ul className="mt-3 space-y-2 text-sm text-slate-600 dark:text-slate-300">
+                  {result.strengths?.map((item: string) => (
+                    <li key={item} className="flex items-start gap-2">
+                      <CheckCircle2
+                        size={16}
+                        className="mt-0.5 text-emerald-500"
+                      />{" "}
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div>
+                <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
+                  Weaknesses
+                </h3>
+                <ul className="mt-3 space-y-2 text-sm text-slate-600 dark:text-slate-300">
+                  {result.weaknesses?.map((item: string) => (
+                    <li key={item} className="flex items-start gap-2">
+                      <XCircle size={16} className="mt-0.5 text-rose-500" />{" "}
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+
+            <div className="mt-8">
+              <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
+                Recommendations
+              </h3>
+              <ul className="mt-3 space-y-2 text-sm text-slate-600 dark:text-slate-300">
+                {result.recommendations?.map((item: string) => (
+                  <li key={item} className="flex items-start gap-2">
+                    <Star size={16} className="mt-0.5 text-amber-500" /> {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </Card>
         ) : (
           <Card className="p-6">
             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -199,38 +309,39 @@ export function MockInterviewPage({
               <ProgressBar value={progress} />
             </div>
 
-            <div className="mt-6 rounded-2xl bg-slate-50 p-5 dark:bg-slate-800/40">
-              <p className="text-sm text-slate-500 dark:text-slate-400">
-                Current prompt
-              </p>
-              <h2 className="mt-2 text-2xl font-bold text-slate-900 dark:text-white">
-                Can you walk me through a recent project and the technical
-                decisions you made?
-              </h2>
-            </div>
-
-            <div className="mt-6 grid gap-4 md:grid-cols-3">
-              {[
-                { label: "Technical depth", value: "88%" },
-                { label: "Communication", value: "92%" },
-                { label: "Confidence", value: "84%" },
-              ].map((item) => (
+            <div className="mt-6 space-y-4">
+              {questions.map((q, idx) => (
                 <div
-                  key={item.label}
-                  className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900"
+                  key={q.id}
+                  className="rounded-2xl bg-slate-50 p-5 dark:bg-slate-800/40"
                 >
                   <p className="text-sm text-slate-500 dark:text-slate-400">
-                    {item.label}
+                    Question {idx + 1}
                   </p>
-                  <p className="mt-2 text-2xl font-bold text-slate-900 dark:text-white">
-                    {item.value}
-                  </p>
+                  <h2 className="mt-2 text-2xl font-bold text-slate-900 dark:text-white">
+                    {q.question}
+                  </h2>
+                  <textarea
+                    value={answers[q.id] || ""}
+                    onChange={(e) =>
+                      setAnswers((prev) => ({
+                        ...prev,
+                        [q.id]: e.target.value,
+                      }))
+                    }
+                    placeholder="Type your answer here..."
+                    className="mt-4 w-full rounded-2xl border border-slate-200 bg-white p-4 text-sm dark:border-slate-700 dark:bg-slate-900"
+                  />
                 </div>
               ))}
             </div>
 
             <div className="mt-8 flex justify-end">
-              <Button onClick={finishInterview} className="gap-2">
+              <Button
+                onClick={finishInterview}
+                className="gap-2"
+                disabled={loading}
+              >
                 <CheckCircle2 size={16} /> Finish and review
               </Button>
             </div>

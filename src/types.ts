@@ -1,4 +1,10 @@
-export type Difficulty = "Beginner" | "Intermediate" | "Advanced";
+export type Difficulty =
+  | "Beginner"
+  | "Intermediate"
+  | "Advanced"
+  | "Easy"
+  | "Medium"
+  | "Hard";
 export type Category =
   | "HTML"
   | "CSS"
@@ -25,12 +31,14 @@ export interface UserProfile {
 }
 
 export interface Question {
-  id: string;
+  id?: string;
+  _id?: string;
   category: Category;
   topic: string;
   difficulty: Difficulty;
   question: string;
-  answer: string;
+  answer?: string;
+  correctAnswer?: string;
   explanation: string;
   tags: string[];
   codeExample?: string;
@@ -54,13 +62,18 @@ export interface InterviewResult {
   technology: string;
   difficulty: string;
   score: number;
-  technicalKnowledge: number;
-  accuracy: number;
-  timeManagement: number;
-  strongAreas: string[];
-  weakAreas: string[];
-  recommendedTopics: string[];
-  suggestedQuestions: string[];
+  technicalKnowledge?: number;
+  technicalScore?: number;
+  communicationScore?: number;
+  accuracy?: number;
+  timeManagement?: number;
+  strongAreas?: string[];
+  weakAreas?: string[];
+  strengths?: string[];
+  weaknesses?: string[];
+  recommendedTopics?: string[];
+  recommendations?: string[];
+  suggestedQuestions?: string[];
   createdAt: string;
 }
 
@@ -126,5 +139,5 @@ export interface HrQuestion {
 export interface FormState {
   email: string;
   password: string;
-  name?: string;
+  name: string;
 }

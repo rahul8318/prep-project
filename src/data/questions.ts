@@ -242,6 +242,385 @@ const jsQuestions: Question[] = [
       "It helps catch silent errors, disallows certain unsafe actions, and makes code more reliable and easier to debug.",
     tags: ["best-practices", "errors"],
   },
+  {
+    id: "js-21",
+    category: "JavaScript",
+    topic: "Array sorting",
+    difficulty: "Beginner",
+    question:
+      "How does sort() work in JavaScript and why is a compare function often needed?",
+    answer:
+      "sort() sorts array elements in place, but without a compare function it converts values to strings and orders them by Unicode code points.",
+    explanation:
+      "This can create surprising behavior for numbers because [10, 2, 30].sort() produces [10, 2, 30] instead of [2, 10, 30]. A compare function such as (a, b) => a - b ensures correct numeric sorting.",
+    tags: ["arrays", "sorting"],
+  },
+  {
+    id: "js-22",
+    category: "JavaScript",
+    topic: "Rest parameters",
+    difficulty: "Beginner",
+    question: "What are rest parameters in JavaScript?",
+    answer:
+      "Rest parameters allow a function to accept an indefinite number of arguments as an array.",
+    explanation:
+      "They are useful when you want to handle a variable number of arguments without manually using the arguments object. They also simplify function definitions and make intent clearer.",
+    tags: ["functions", "arguments"],
+  },
+  {
+    id: "js-23",
+    category: "JavaScript",
+    topic: "Spread syntax",
+    difficulty: "Beginner",
+    question: "How is the spread operator different from rest parameters?",
+    answer:
+      "Spread expands iterable values into individual elements, while rest collects multiple values into an array.",
+    explanation:
+      "Spread is commonly used to copy arrays, merge objects, and pass arguments to functions. Rest is used in function signatures to absorb extra arguments.",
+    tags: ["es6", "functions"],
+  },
+  {
+    id: "js-24",
+    category: "JavaScript",
+    topic: "Function declaration vs expression",
+    difficulty: "Beginner",
+    question:
+      "What is the difference between a function declaration and a function expression?",
+    answer:
+      "A function declaration is hoisted and can be used before its definition, while a function expression is created at runtime and is not hoisted the same way.",
+    explanation:
+      "Function declarations are ideal for named utility functions. Function expressions are often used in callbacks, IIFEs, and assignments where scope and timing matter.",
+    tags: ["functions", "hoisting"],
+  },
+  {
+    id: "js-25",
+    category: "JavaScript",
+    topic: "Lexical scoping",
+    difficulty: "Intermediate",
+    question: "What is lexical scoping in JavaScript?",
+    answer:
+      "Lexical scoping means a function can access variables from the scope in which it was defined, not where it is called.",
+    explanation:
+      "This is why closures work: inner functions keep access to their outer environment even after the outer function finishes executing. It is a foundational concept in JavaScript.",
+    tags: ["scope", "closures"],
+  },
+  {
+    id: "js-26",
+    category: "JavaScript",
+    topic: "Array filter",
+    difficulty: "Beginner",
+    question: "When would you use filter() instead of map()?",
+    answer:
+      "filter() is used when you want to keep only the elements that satisfy a condition, while map() transforms every element.",
+    explanation:
+      "filter() returns a new array with matching values, while map() returns a transformed array of the same length. They solve different problems and are often used together.",
+    tags: ["arrays", "functional"],
+  },
+  {
+    id: "js-27",
+    category: "JavaScript",
+    topic: "setTimeout and closures",
+    difficulty: "Intermediate",
+    question: "Why can closures be important with setTimeout in JavaScript?",
+    answer:
+      "Closures allow a callback to remember the surrounding state even after the surrounding function has returned.",
+    explanation:
+      "This is especially useful when scheduling delayed work. Without closures, the timer callback would not have access to the original variables unless they are passed explicitly.",
+    tags: ["async", "closures"],
+  },
+  {
+    id: "js-28",
+    category: "JavaScript",
+    topic: "Regular expressions",
+    difficulty: "Intermediate",
+    question: "What is a regular expression and how is it used in JavaScript?",
+    answer:
+      "A regular expression is a pattern used to match or search strings based on specific rules.",
+    explanation:
+      "JavaScript supports regex via literals or constructor functions. They are used for validation, parsing, replacements, and extracting information from text.",
+    tags: ["strings", "regex"],
+  },
+  {
+    id: "js-29",
+    category: "JavaScript",
+    topic: "IIFE",
+    difficulty: "Intermediate",
+    question: "What is an IIFE and why would you use one?",
+    answer:
+      "An IIFE is an Immediately Invoked Function Expression that runs as soon as it is defined.",
+    explanation:
+      "It helps isolate variables from the global scope, avoiding accidental collisions. IIFEs were commonly used in older JavaScript before modules became standard.",
+    tags: ["functions", "scope"],
+  },
+  {
+    id: "js-30",
+    category: "JavaScript",
+    topic: "Promise finally",
+    difficulty: "Intermediate",
+    question: "What does Promise.finally() do?",
+    answer:
+      "Promise.finally() runs a callback after a promise settles, whether it resolves or rejects.",
+    explanation:
+      "It is useful for cleanup operations such as hiding loading spinners, resetting UI state, or releasing resources regardless of the outcome.",
+    tags: ["async", "promises"],
+  },
+  {
+    id: "js-31",
+    category: "JavaScript",
+    topic: "JSON serialization",
+    difficulty: "Intermediate",
+    question: "Why can JSON.stringify fail on some objects?",
+    answer:
+      "JSON.stringify throws or omits values when the object contains circular references or functions, symbols, or undefined values.",
+    explanation:
+      "If an object references itself, serialization cannot be completed. To handle circular data, you need custom logic or a library that supports special cases.",
+    tags: ["json", "objects"],
+  },
+  {
+    id: "js-32",
+    category: "JavaScript",
+    topic: "DOMContentLoaded",
+    difficulty: "Beginner",
+    question: "What is the DOMContentLoaded event?",
+    answer:
+      "It fires when the initial HTML document has been fully parsed and the DOM is ready to be manipulated.",
+    explanation:
+      "This event is used to run scripts after the markup is available, without waiting for stylesheets and images to finish loading. It is a common place to initialize UI logic.",
+    tags: ["browser", "dom"],
+  },
+  {
+    id: "js-33",
+    category: "JavaScript",
+    topic: "Array flatMap",
+    difficulty: "Intermediate",
+    question: "What is flatMap() used for?",
+    answer:
+      "flatMap() maps each element and then flattens the result into a new array.",
+    explanation:
+      "This is helpful when you need to project one-to-many relationships, such as expanding a list of orders into all of their items in a single operation.",
+    tags: ["arrays", "mapping"],
+  },
+  {
+    id: "js-34",
+    category: "JavaScript",
+    topic: "Reducer pattern",
+    difficulty: "Intermediate",
+    question: "What is the purpose of reduce() in JavaScript?",
+    answer:
+      "reduce() reduces an array to a single value by repeatedly combining an accumulator with each element.",
+    explanation:
+      "It is often used for sums, grouping, object creation, and data aggregation. The accumulator can start with an initial value or the first element of the array.",
+    tags: ["arrays", "functional"],
+  },
+  {
+    id: "js-35",
+    category: "JavaScript",
+    topic: "Modules",
+    difficulty: "Intermediate",
+    question: "How do JavaScript modules help with code organization?",
+    answer:
+      "Modules let you split code into reusable files and export or import only the pieces that are needed.",
+    explanation:
+      "They improve maintainability, avoid global namespace pollution, and make dependencies explicit. ES modules are the standard modern browser and Node pattern.",
+    tags: ["modules", "es6"],
+  },
+  {
+    id: "js-36",
+    category: "JavaScript",
+    topic: "WeakSet",
+    difficulty: "Advanced",
+    question: "What is a WeakSet and how is it different from a Set?",
+    answer:
+      "A WeakSet stores only objects and does not prevent them from being garbage collected.",
+    explanation:
+      "This makes WeakSet useful for tracking object identity without keeping references alive longer than necessary. Unlike Set, WeakSet does not support iteration or size checking.",
+    tags: ["collections", "memory"],
+  },
+  {
+    id: "js-37",
+    category: "JavaScript",
+    topic: "Recursion",
+    difficulty: "Intermediate",
+    question: "What is recursion in JavaScript?",
+    answer:
+      "Recursion is when a function calls itself to solve smaller instances of the same problem.",
+    explanation:
+      "Recursion is well-suited for tree traversal, divide-and-conquer algorithms, and nested structures. It must include a base case to prevent infinite recursion.",
+    tags: ["functions", "algorithms"],
+  },
+  {
+    id: "js-38",
+    category: "JavaScript",
+    topic: "Garbage collection",
+    difficulty: "Intermediate",
+    question: "How does JavaScript garbage collection work?",
+    answer:
+      "The JavaScript engine automatically reclaims memory that is no longer reachable from any active references.",
+    explanation:
+      "This means objects that have no roots in the running program can be cleaned up by the garbage collector. Understanding reachability is important when working with closures and caches.",
+    tags: ["memory", "runtime"],
+  },
+  {
+    id: "js-39",
+    category: "JavaScript",
+    topic: "Event target",
+    difficulty: "Intermediate",
+    question:
+      "What is the difference between event.target and event.currentTarget?",
+    answer:
+      "event.target is the element that triggered the event, while event.currentTarget is the element whose listener is handling it.",
+    explanation:
+      "This distinction is especially important in event delegation, where a parent listener handles events from child elements. The target is the origin, while currentTarget is the listener owner.",
+    tags: ["events", "dom"],
+  },
+  {
+    id: "js-40",
+    category: "JavaScript",
+    topic: "Fetch API",
+    difficulty: "Intermediate",
+    question: "How does the Fetch API work in JavaScript?",
+    answer:
+      "Fetch makes HTTP requests and returns a Promise that resolves to a Response object.",
+    explanation:
+      "It supports modern asynchronous web communication and is often paired with response.json(), response.text(), or response.ok checks. It is more promise-based and cleaner than XMLHttpRequest.",
+    tags: ["network", "async"],
+  },
+  {
+    id: "js-41",
+    category: "JavaScript",
+    topic: "Object destructuring",
+    difficulty: "Beginner",
+    question: "What is object destructuring and why is it useful?",
+    answer:
+      "Object destructuring extracts properties from an object into variables with a concise syntax.",
+    explanation:
+      "It reduces repeated property access and makes code easier to read, especially when working with configuration objects and API responses.",
+    tags: ["es6", "objects"],
+  },
+  {
+    id: "js-42",
+    category: "JavaScript",
+    topic: "Array reduction",
+    difficulty: "Intermediate",
+    question: "How can reduce() be used to count values in an array?",
+    answer:
+      "reduce() can accumulate a counter object and increment counts for each matching value.",
+    explanation:
+      "This pattern is useful for frequency analysis, grouping results, and summarizing data. It keeps logic centralized and expressive for data processing tasks.",
+    tags: ["arrays", "data"],
+  },
+  {
+    id: "js-43",
+    category: "JavaScript",
+    topic: "Nullish coalescing",
+    difficulty: "Beginner",
+    question: "Why is nullish coalescing safer than || for default values?",
+    answer:
+      "?? only falls back when the value is null or undefined, while || treats other falsy values such as 0, false, and empty strings as missing.",
+    explanation:
+      "This makes ?? better for cases where valid falsy values should be preserved, such as 0 or empty strings. It is especially useful in configuration and UI defaults.",
+    tags: ["es2020", "operators"],
+  },
+  {
+    id: "js-44",
+    category: "JavaScript",
+    topic: "Shadowing",
+    difficulty: "Intermediate",
+    question: "What is variable shadowing in JavaScript?",
+    answer:
+      "Shadowing occurs when an inner scope declares a variable with the same name as a variable in an outer scope.",
+    explanation:
+      "The inner variable hides the outer one within its own scope. Shadowing can make code confusing, so it should be used carefully and deliberately.",
+    tags: ["scope", "variables"],
+  },
+  {
+    id: "js-45",
+    category: "JavaScript",
+    topic: "Array includes",
+    difficulty: "Beginner",
+    question: "What is the difference between includes() and indexOf()?",
+    answer:
+      "includes() returns a boolean, while indexOf() returns the index position of a match or -1 if it is missing.",
+    explanation:
+      "includes() is often more readable for membership checks and supports easier conditionals. indexOf() remains useful when you need the exact position in the array.",
+    tags: ["arrays", "methods"],
+  },
+  {
+    id: "js-46",
+    category: "JavaScript",
+    topic: "Proxy",
+    difficulty: "Advanced",
+    question: "What is a Proxy in JavaScript?",
+    answer:
+      "A Proxy wraps an object and intercepts operations such as reading, writing, and method calls.",
+    explanation:
+      "Proxies are powerful for validation, logging, custom property access, and reactive abstractions. They allow developers to define custom behavior for object interaction.",
+    tags: ["objects", "meta-programming"],
+  },
+  {
+    id: "js-47",
+    category: "JavaScript",
+    topic: "Array every and some",
+    difficulty: "Beginner",
+    question: "How are every() and some() different?",
+    answer:
+      "every() returns true only if all elements match a condition, while some() returns true if at least one element matches.",
+    explanation:
+      "They are useful for validation checks and early truth assessment. every() is ideal for ensuring all items pass a rule, while some() checks whether there is any positive match.",
+    tags: ["arrays", "validation"],
+  },
+  {
+    id: "js-48",
+    category: "JavaScript",
+    topic: "Date API",
+    difficulty: "Intermediate",
+    question: "What is the JavaScript Date object used for?",
+    answer:
+      "The Date object represents dates and times and supports parsing, formatting, and date arithmetic.",
+    explanation:
+      "It is useful for timers, logs, scheduling, and displaying timestamps. However, it can be tricky because time zones and locale formatting vary by environment.",
+    tags: ["date", "browser"],
+  },
+  {
+    id: "js-49",
+    category: "JavaScript",
+    topic: "Object freeze",
+    difficulty: "Intermediate",
+    question: "What does Object.freeze() do?",
+    answer:
+      "Object.freeze() makes an object immutable so its properties cannot be added, removed, or changed.",
+    explanation:
+      "It is useful for protecting configuration objects and shared constants. The freeze is shallow, meaning nested objects are still mutable unless frozen separately.",
+    tags: ["immutability", "objects"],
+  },
+  {
+    id: "js-50",
+    category: "JavaScript",
+    topic: "Template literals",
+    difficulty: "Beginner",
+    question: "What are template literals and why are they useful?",
+    answer:
+      "Template literals are strings enclosed with backticks that support interpolation and multi-line text.",
+    explanation:
+      "They make string building easier and cleaner than concatenation. They also support multi-line content and embedded expressions in a natural syntax.",
+    tags: ["strings", "es6"],
+  },
+  {
+    id: "js-51",
+    category: "JavaScript",
+    topic: "Types",
+    difficulty: "Intermediate",
+    question: "What is the difference between Number() and parseInt()?",
+    answer:
+      "Number() converts the entire input into a number, while parseInt() reads an integer from the beginning of a string and stops when it reaches an invalid character.",
+    explanation:
+      'Number() is strict: Number("123abc") returns NaN because the complete value is not a valid number, while Number("123") returns 123. parseInt() parses from left to right, so parseInt("123abc", 10) returns 123. parseInt() also truncates decimals, so parseInt("12.8", 10) returns 12. Always provide the radix, normally 10, to make the intended base explicit. Use Number() when the whole value must be numeric and parseInt() when you intentionally need to extract an integer prefix from text.',
+    tags: ["types", "numbers", "conversion"],
+    codeExample: `Number(\"123abc\"); // NaN
+Number(\"123\"); // 123
+parseInt(\"123abc\", 10); // 123
+parseInt(\"12.8\", 10); // 12`,
+  },
 ];
 
 const reactQuestions: Question[] = [
@@ -424,6 +803,368 @@ const reactQuestions: Question[] = [
     explanation:
       "It improves perceived performance and simplifies UI states for data fetching and code splitting.",
     tags: ["async", "lazy"],
+  },
+  {
+    id: "react-16",
+    category: "React",
+    topic: "useCallback",
+    difficulty: "Intermediate",
+    question: "What does useCallback do in React?",
+    answer:
+      "useCallback memoizes a function so the same function reference is reused across renders unless dependencies change.",
+    explanation:
+      "It helps avoid unnecessary re-renders in child components that depend on function identity, especially when passing callbacks as props to optimized components.",
+    tags: ["hooks", "performance"],
+  },
+  {
+    id: "react-17",
+    category: "React",
+    topic: "useReducer",
+    difficulty: "Intermediate",
+    question: "When is useReducer a better choice than useState?",
+    answer:
+      "useReducer is better for managing more complex state transitions or multiple related updates in a predictable reducer pattern.",
+    explanation:
+      "It centralizes logic in a reducer function, making code easier to reason about when state updates depend on previous state or multiple actions.",
+    tags: ["hooks", "state-management"],
+  },
+  {
+    id: "react-18",
+    category: "React",
+    topic: "Prop drilling",
+    difficulty: "Beginner",
+    question: "What is prop drilling and how can it be avoided?",
+    answer:
+      "Prop drilling is when data is passed through many intermediate components just to reach a deeply nested child.",
+    explanation:
+      "It can be avoided with Context API, composition, or state management libraries. This reduces complexity and makes component APIs cleaner.",
+    tags: ["props", "context"],
+  },
+  {
+    id: "react-19",
+    category: "React",
+    topic: "Lifting state up",
+    difficulty: "Intermediate",
+    question: "What does lifting state up mean in React?",
+    answer:
+      "Lifting state up means moving shared state to the closest parent component that needs it so multiple children can synchronize.",
+    explanation:
+      "This keeps data consistent across siblings and prevents duplicate state in separate components. It is a common design pattern in React UIs.",
+    tags: ["state", "architecture"],
+  },
+  {
+    id: "react-20",
+    category: "React",
+    topic: "Fragment",
+    difficulty: "Beginner",
+    question: "Why would you use a React Fragment?",
+    answer:
+      "A Fragment lets you group multiple elements without adding an extra DOM node.",
+    explanation:
+      "This is useful when a component needs to return multiple sibling elements but you do not want unnecessary wrapper elements in the markup.",
+    tags: ["jsx", "rendering"],
+  },
+  {
+    id: "react-21",
+    category: "React",
+    topic: "Children prop",
+    difficulty: "Beginner",
+    question: "What is the children prop in React?",
+    answer:
+      "The children prop contains the content passed between a component’s opening and closing tags.",
+    explanation:
+      "It is common for layout components, wrappers, and design-system primitives where a parent component renders content supplied by its caller.",
+    tags: ["props", "composition"],
+  },
+  {
+    id: "react-22",
+    category: "React",
+    topic: "useEffect cleanup",
+    difficulty: "Intermediate",
+    question: "Why is cleanup important in useEffect?",
+    answer:
+      "Cleanup prevents memory leaks and removes side effects such as event listeners, subscriptions, or timers when the component unmounts or the effect reruns.",
+    explanation:
+      "Without cleanup, stale subscriptions or duplicated listeners can create bugs. React automatically runs cleanup before re-running an effect or unmounting the component.",
+    tags: ["effects", "memory"],
+  },
+  {
+    id: "react-23",
+    category: "React",
+    topic: "State updates with object",
+    difficulty: "Intermediate",
+    question: "How should you update nested object state in React?",
+    answer:
+      "You should create a new object or use a functional state update so you do not mutate the existing state object directly.",
+    explanation:
+      "React relies on immutability to detect state changes. Mutating nested properties can prevent re-renders and cause stale UI data.",
+    tags: ["state", "immutability"],
+  },
+  {
+    id: "react-24",
+    category: "React",
+    topic: "Controlled inputs",
+    difficulty: "Beginner",
+    question:
+      "What is the difference between controlled and uncontrolled inputs?",
+    answer:
+      "Controlled inputs are managed by React state, while uncontrolled inputs keep their value in the DOM until needed.",
+    explanation:
+      "Controlled components provide a single source of truth and easier validation, while uncontrolled inputs can be useful for simple forms or when integrating with third-party libraries.",
+    tags: ["forms", "state"],
+  },
+  {
+    id: "react-25",
+    category: "React",
+    topic: "List rendering",
+    difficulty: "Beginner",
+    question: "Why should every list item in React have a unique key?",
+    answer:
+      "Keys help React identify which items changed, were added, or removed, allowing efficient reconciliation.",
+    explanation:
+      "Using stable unique keys avoids incorrect DOM updates and unnecessary re-renders. Index keys are acceptable for static lists but can cause issues when the list changes order.",
+    tags: ["lists", "performance"],
+  },
+  {
+    id: "react-26",
+    category: "React",
+    topic: "Higher-order components",
+    difficulty: "Intermediate",
+    question: "What is a higher-order component in React?",
+    answer:
+      "A higher-order component is a function that takes a component and returns a new component with added behavior or props.",
+    explanation:
+      "HOCs were a common way to reuse cross-cutting concerns such as authentication or logging before hooks became the standard pattern.",
+    tags: ["components", "patterns"],
+  },
+  {
+    id: "react-27",
+    category: "React",
+    topic: "Lazy loading",
+    difficulty: "Intermediate",
+    question: "What is lazy loading in React?",
+    answer:
+      "Lazy loading defers loading a component or resource until it is actually needed.",
+    explanation:
+      "React.lazy and Suspense make it easier to split bundles and improve initial load times for large applications, especially on routes or heavy pages.",
+    tags: ["performance", "code-splitting"],
+  },
+  {
+    id: "react-28",
+    category: "React",
+    topic: "Refs vs state",
+    difficulty: "Intermediate",
+    question: "When should you use refs instead of state?",
+    answer:
+      "Use refs for direct DOM access or non-rendering values such as focus, animation, media playback, or imperative interactions.",
+    explanation:
+      "State drives UI updates, while refs are meant for values that do not need to trigger re-rendering. Overusing refs can make code harder to reason about.",
+    tags: ["refs", "state"],
+  },
+  {
+    id: "react-29",
+    category: "React",
+    topic: "ForwardRef",
+    difficulty: "Advanced",
+    question: "What is React.forwardRef used for?",
+    answer:
+      "forwardRef allows a child component to expose a ref to a DOM node or class component to its parent.",
+    explanation:
+      "This is commonly used in reusable input components, custom form controls, and third-party library wrappers where parent code needs imperative access.",
+    tags: ["refs", "components"],
+  },
+  {
+    id: "react-30",
+    category: "React",
+    topic: "StrictMode",
+    difficulty: "Intermediate",
+    question: "What does React.StrictMode do?",
+    answer:
+      "StrictMode activates additional development checks to help identify unsafe lifecycle patterns, side effects, and render issues.",
+    explanation:
+      "It does not change production behavior and is mainly used during development to catch patterns that can lead to bugs or inconsistent rendering.",
+    tags: ["development", "debugging"],
+  },
+  {
+    id: "react-31",
+    category: "React",
+    topic: "Synthetic events",
+    difficulty: "Intermediate",
+    question: "What are synthetic events in React?",
+    answer:
+      "Synthetic events are React’s cross-browser wrapper around browser events, providing a consistent API across platforms.",
+    explanation:
+      "They normalize event behavior so developers can use one interface regardless of the browser. They still flow through the same event phases and can be prevented or stopped.",
+    tags: ["events", "browser"],
+  },
+  {
+    id: "react-32",
+    category: "React",
+    topic: "Server components",
+    difficulty: "Advanced",
+    question: "What are React Server Components?",
+    answer:
+      "Server Components allow parts of the UI to be rendered on the server and sent to the client without shipping all their JavaScript.",
+    explanation:
+      "This reduces client bundle size and enables data fetching close to the source. They are part of modern React architecture and work alongside client components.",
+    tags: ["architecture", "performance"],
+  },
+  {
+    id: "react-33",
+    category: "React",
+    topic: "Hydration",
+    difficulty: "Advanced",
+    question: "What is hydration in React?",
+    answer:
+      "Hydration is the process of attaching React behavior to server-rendered HTML so the client app becomes interactive.",
+    explanation:
+      "This ensures the initial UI matches the server output while enabling event listeners and state management on the client. Bugs here often result from mismatched markup or IDs.",
+    tags: ["ssr", "rendering"],
+  },
+  {
+    id: "react-34",
+    category: "React",
+    topic: "Route params",
+    difficulty: "Intermediate",
+    question: "How do you access route parameters in React Router?",
+    answer:
+      "You use the useParams hook to read values defined in the route path.",
+    explanation:
+      "This is useful for detail pages where the URL contains an ID or slug. The hook returns an object of the currently matched route parameters.",
+    tags: ["routing", "hooks"],
+  },
+  {
+    id: "react-35",
+    category: "React",
+    topic: "Protected routes",
+    difficulty: "Intermediate",
+    question: "What is a protected route in a React app?",
+    answer:
+      "A protected route restricts access to certain pages until the user is authenticated or authorized.",
+    explanation:
+      "Typically, this is implemented by checking auth state and redirecting unauthenticated users to a login page or displaying a fallback. It is common in dashboard and admin workflows.",
+    tags: ["routing", "security"],
+  },
+  {
+    id: "react-36",
+    category: "React",
+    topic: "Error boundaries",
+    difficulty: "Advanced",
+    question: "How do error boundaries improve production reliability?",
+    answer:
+      "Error boundaries catch rendering errors in a subtree and display a fallback UI instead of crashing the whole app.",
+    explanation:
+      "They are essential for building resilient interfaces where a single failing component should not blank out the entire page. They help isolate problems and improve user experience.",
+    tags: ["error-handling", "ui"],
+  },
+  {
+    id: "react-37",
+    category: "React",
+    topic: "useLayoutEffect",
+    difficulty: "Advanced",
+    question: "When would you choose useLayoutEffect over useEffect?",
+    answer:
+      "useLayoutEffect runs synchronously after DOM mutations but before the browser paints, which makes it useful for measuring layout or reading dimensions.",
+    explanation:
+      "It is best for cases where you need to read layout before paint, such as animations or DOM measurements. It should be used carefully because it can block painting.",
+    tags: ["hooks", "performance"],
+  },
+  {
+    id: "react-38",
+    category: "React",
+    topic: "Form validation",
+    difficulty: "Intermediate",
+    question: "How is validation typically handled in React forms?",
+    answer:
+      "Validation is typically done in event handlers or custom hooks, often using state to track field values and errors.",
+    explanation:
+      "Validation can happen on submit, on change, or both. Keeping validation logic declarative and centralized helps maintain clean and predictable form behavior.",
+    tags: ["forms", "validation"],
+  },
+  {
+    id: "react-39",
+    category: "React",
+    topic: "Context provider",
+    difficulty: "Intermediate",
+    question: "How does a Context provider work in React?",
+    answer:
+      "A Context provider supplies a value to all components below it in the tree, allowing shared state or functions to be accessed without prop drilling.",
+    explanation:
+      "This makes theme, auth, and localization data easy to share across an app. Consumers read from the nearest provider and update when the provider value changes.",
+    tags: ["context", "state"],
+  },
+  {
+    id: "react-40",
+    category: "React",
+    topic: "Memoization",
+    difficulty: "Intermediate",
+    question: "How does React.memo help optimize components?",
+    answer:
+      "React.memo skips re-rendering a component when its props are shallowly equal to the previous render.",
+    explanation:
+      "It is useful for pure presentational components that receive stable props. If props are recreated frequently, memoization may not provide much benefit.",
+    tags: ["performance", "optimization"],
+  },
+  {
+    id: "react-41",
+    category: "React",
+    topic: "Conditional rendering",
+    difficulty: "Beginner",
+    question: "What are common patterns for conditional rendering in React?",
+    answer:
+      "Common patterns include if statements, ternary operators, and logical && expressions inside JSX.",
+    explanation:
+      "These patterns let components show loading states, placeholders, or alternative UI based on data and user actions. They are part of the core React rendering model.",
+    tags: ["jsx", "ui"],
+  },
+  {
+    id: "react-42",
+    category: "React",
+    topic: "State batching",
+    difficulty: "Intermediate",
+    question: "What is state batching in React and why does it matter?",
+    answer:
+      "State batching combines multiple updates into one render cycle to reduce unnecessary work.",
+    explanation:
+      "This makes UI updates more efficient, but it also means that multiple setState calls in a single event can use the previous state unless you provide a functional update.",
+    tags: ["state", "performance"],
+  },
+  {
+    id: "react-43",
+    category: "React",
+    topic: "Component lifecycle",
+    difficulty: "Intermediate",
+    question:
+      "How do lifecycle methods differ in class components versus function components?",
+    answer:
+      "Class components use lifecycle methods like componentDidMount and componentWillUnmount, while function components use hooks such as useEffect.",
+    explanation:
+      "Hooks make lifecycle logic easier to read and share, especially when combining effects with state and context. They also reduce class boilerplate.",
+    tags: ["lifecycle", "hooks"],
+  },
+  {
+    id: "react-44",
+    category: "React",
+    topic: "Portal",
+    difficulty: "Advanced",
+    question: "What is a React portal and when is it useful?",
+    answer:
+      "A portal renders a child component into a DOM node outside the parent component tree.",
+    explanation:
+      "This is helpful for modals, toasts, dropdowns, and other overlays that should visually escape the normal layout flow while staying logically connected to React.",
+    tags: ["ui", "dom"],
+  },
+  {
+    id: "react-45",
+    category: "React",
+    topic: "Immutability",
+    difficulty: "Intermediate",
+    question: "Why is immutability important in React state management?",
+    answer:
+      "Immutability allows React to detect changes by comparing references and avoids mutating shared objects unexpectedly.",
+    explanation:
+      "When state is updated immutably, React can efficiently determine whether a re-render is necessary. This reduces subtle bugs and helps maintain predictable state updates.",
+    tags: ["state", "best-practice"],
   },
 ];
 

@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { CheckCircle2, Clock3, XCircle } from "lucide-react";
 import { Button, Card, ProgressBar } from "../components/ui";
-import { allQuestions } from "../data/questions";
+import { quizApi } from "../services/quizApi";
 import type { QuizResult } from "../types";
 
 const choices = ["Option A", "Option B", "Option C", "Option D"];
@@ -20,38 +20,62 @@ export function QuizPage({
   const [category, setCategory] = useState("JavaScript");
   const [difficulty, setDifficulty] = useState("Intermediate");
   const [questionCount, setQuestionCount] = useState(5);
-  const [questions, setQuestions] = useState<any[]>([]);
+  const [questions, setQuestions] = useState<
+    Array<{
+      id: string;
+      question: string;
+      options: string[];
+      category: string;
+      difficulty: string;
+      topic: string;
+      answer?: string;
+      correctAnswer?: string;
+      explanation?: string;
+    }>
+  >([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedAnswers, setSelectedAnswers] = useState<
     Record<string, string>
   >({});
   const [submitted, setSubmitted] = useState(false);
   const [timeLeft, setTimeLeft] = useState(180);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [quizResult, setQuizResult] = useState<any>(null);
 
-  const filteredQuestions = useMemo(
-    () =>
-      allQuestions
-        .filter((q) => q.category === category && q.difficulty === difficulty)
-        .slice(0, questionCount),
-    [category, difficulty, questionCount],
-  );
+  const startQuiz = async () => {
+    if (!user) {
+      setError("Please log in to start a quiz.");
+      return;
+    }
+    setLoading(true);
+    setError("");
+    try {
+      const res = await quizApi.startQuiz({
+        category,
+        difficulty,
+        count: questionCount,
+      });
 
-  const startQuiz = () => {
-    const selected = filteredQuestions.slice(
-      0,
-      Math.min(questionCount, filteredQuestions.length),
-    );
-    setQuestions(
-      selected.map((q, idx) => ({
-        ...q,
-        options: [q.answer, "Option B", "Option C", "Option D"],
-        id: `${q.id}-${idx}`,
-      })),
-    );
-    setCurrentIndex(0);
-    setSubmitted(false);
-    setSelectedAnswers({});
-    setTimeLeft(180);
+      if (res.success && res.data) {
+        setQuestions(
+          res.data.questions.map((q: any) => ({
+            ...q,
+            options: q.options.length > 0 ? q.options : choices,
+          })),
+        );
+        setCurrentIndex(0);
+        setSubmitted(false);
+        setSelectedAnswers({});
+        setTimeLeft(180);
+      } else {
+        setError("Failed to start quiz. Please try again.");
+      }
+    } catch {
+      setError("Failed to start quiz. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const currentQuestion = questions[currentIndex];
@@ -59,35 +83,32 @@ export function QuizPage({
     ? ((currentIndex + 1) / questions.length) * 100
     : 0;
 
-  const submitQuiz = () => {
-    const score = questions.reduce((acc, question) => {
-      const selected = selectedAnswers[question.id];
-      return acc + (selected === question.answer ? 1 : 0);
-    }, 0);
+  const submitQuiz = async () => {
+    setLoading(true);
+    setError("");
+    try {
+      const answers: Record<string, string> = {};
+      for (const q of questions) {
+        answers[q.id] = selectedAnswers[q.id] || "";
+      }
 
-    const result: QuizResult = {
-      id: `quiz-${Date.now()}`,
-      category,
-      difficulty,
-      score,
-      total: questions.length,
-      correct: score,
-      wrong: questions.length - score,
-      accuracy: Math.round((score / questions.length) * 100),
-      timeTaken: 180 - timeLeft,
-      createdAt: new Date().toISOString(),
-    };
+      const res = await quizApi.submitQuiz({
+        sessionId: currentQuestion?.id || Date.now().toString(),
+        answers,
+        timeTaken: 180 - timeLeft,
+      });
 
-    localStorage.setItem(
-      "interviewhub-quiz-results",
-      JSON.stringify([
-        ...JSON.parse(
-          localStorage.getItem("interviewhub-quiz-results") || "[]",
-        ),
-        result,
-      ]),
-    );
-    setSubmitted(true);
+      if (res.success && res.data) {
+        setQuizResult(res.data);
+        setSubmitted(true);
+      } else {
+        setError("Failed to submit quiz. Please try again.");
+      }
+    } catch {
+      setError("Failed to submit quiz. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const answer = (option: string) =>
@@ -127,7 +148,15 @@ export function QuizPage({
           </div>
         </div>
 
-        {!questions.length ? (
+        {loading ? (
+          <Card className="p-6">
+            <div className="h-64 animate-pulse rounded-2xl bg-slate-100 dark:bg-slate-800" />
+          </Card>
+        ) : error ? (
+          <Card className="p-6 text-center text-sm text-rose-600 dark:text-rose-400">
+            {error}
+          </Card>
+        ) : !questions.length ? (
           <Card className="p-6">
             <div className="grid gap-5 md:grid-cols-4">
               <select
@@ -162,7 +191,7 @@ export function QuizPage({
               <Button onClick={startQuiz}>Start quiz</Button>
             </div>
           </Card>
-        ) : submitted ? (
+        ) : submitted && quizResult ? (
           <Card className="p-6">
             <div className="mb-6 flex items-center gap-3 text-2xl font-bold text-slate-900 dark:text-white">
               <CheckCircle2 className="text-emerald-500" /> Quiz completed
@@ -173,7 +202,7 @@ export function QuizPage({
                   Final score
                 </p>
                 <p className="mt-2 text-3xl font-bold">
-                  {score}/{questions.length}
+                  {quizResult.score}/{quizResult.totalQuestions}
                 </p>
               </div>
               <div className="rounded-2xl bg-slate-50 p-4 dark:bg-slate-800/40">
@@ -181,7 +210,7 @@ export function QuizPage({
                   Accuracy
                 </p>
                 <p className="mt-2 text-3xl font-bold">
-                  {Math.round((score / questions.length) * 100)}%
+                  {quizResult.accuracy}%
                 </p>
               </div>
               <div className="rounded-2xl bg-slate-50 p-4 dark:bg-slate-800/40">
@@ -189,7 +218,7 @@ export function QuizPage({
                   Correct
                 </p>
                 <p className="mt-2 text-3xl font-bold text-emerald-600">
-                  {score}
+                  {quizResult.correctAnswers}
                 </p>
               </div>
               <div className="rounded-2xl bg-slate-50 p-4 dark:bg-slate-800/40">
@@ -197,7 +226,7 @@ export function QuizPage({
                   Wrong
                 </p>
                 <p className="mt-2 text-3xl font-bold text-rose-600">
-                  {questions.length - score}
+                  {quizResult.incorrectAnswers}
                 </p>
               </div>
             </div>
@@ -205,7 +234,9 @@ export function QuizPage({
             <div className="mt-8 space-y-4">
               {questions.map((question, idx) => {
                 const selected = selectedAnswers[question.id];
-                const isCorrect = selected === question.answer;
+                const correctAnswer =
+                  question.options?.[0] || question.correctAnswer;
+                const isCorrect = selected === correctAnswer;
                 return (
                   <div
                     key={question.id}
@@ -225,10 +256,7 @@ export function QuizPage({
                       </span>
                     </p>
                     <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-                      Correct answer: {question.answer}
-                    </p>
-                    <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-                      Explanation: {question.explanation}
+                      Correct answer: {correctAnswer}
                     </p>
                   </div>
                 );

@@ -50,22 +50,26 @@ export function ProfilePage({
 
         <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
           <Card className="p-6 text-center">
-            <div className="relative mx-auto flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-sky-500 to-violet-500 text-2xl font-bold text-white shadow-lg shadow-sky-500/20">
-              {user?.avatar || "RS"}
+            <div className="relative mx-auto flex h-24 w-24 items-center justify-center">
+              <img
+                src="/logo.svg"
+                alt="InterviewHub"
+                className="h-24 w-24 rounded-full object-cover shadow-lg shadow-sky-500/20"
+              />
               <button className="absolute -bottom-1 -right-1 rounded-full bg-white p-2 text-slate-700 shadow dark:bg-slate-800 dark:text-slate-200">
                 <Camera size={14} />
               </button>
             </div>
             <h2 className="mt-5 text-2xl font-bold text-slate-900 dark:text-white">
-              {user?.name || "Rahul Sharma"}
+              {user?.name || "Learner"}
             </h2>
             <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-              {user?.role || "Frontend Developer"}
+              {user?.role || "Interview Candidate"}
             </p>
             <div className="mt-4 flex items-center justify-center gap-2 text-amber-500">
               <Star size={16} fill="currentColor" />{" "}
               <span className="font-semibold text-slate-900 dark:text-white">
-                4.9 rating
+                New user
               </span>
             </div>
           </Card>
@@ -88,7 +92,7 @@ export function ProfilePage({
                     Full name
                   </div>
                   <div className="font-medium text-slate-900 dark:text-white">
-                    {user?.name || "Rahul Sharma"}
+                    {user?.name || "—"}
                   </div>
                 </div>
               </div>
@@ -100,19 +104,7 @@ export function ProfilePage({
                     Email
                   </div>
                   <div className="font-medium text-slate-900 dark:text-white">
-                    {user?.email || "rahul@example.com"}
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3 rounded-2xl bg-slate-50 p-3 dark:bg-slate-800/40">
-                <MapPin className="text-sky-500" size={18} />
-                <div>
-                  <div className="text-xs text-slate-500 dark:text-slate-400">
-                    Location
-                  </div>
-                  <div className="font-medium text-slate-900 dark:text-white">
-                    Bengaluru, India
+                    {user?.email || "—"}
                   </div>
                 </div>
               </div>
@@ -124,7 +116,7 @@ export function ProfilePage({
                     Preparation
                   </div>
                   <div className="font-medium text-slate-900 dark:text-white">
-                    {user?.preparationLevel || "Intermediate"}
+                    {user?.preparationLevel || "Beginner"}
                   </div>
                 </div>
               </div>

@@ -112,9 +112,11 @@ export function HomePage({
       <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/80 backdrop-blur-xl dark:border-slate-800 dark:bg-slate-950/80">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-sky-500 to-violet-500 text-lg font-bold text-white shadow-lg shadow-sky-500/20">
-              I
-            </div>
+            <img
+              src="/logo.svg"
+              alt="InterviewHub"
+              className="h-10 w-10 rounded-xl object-cover shadow-lg shadow-sky-500/20"
+            />
             <div>
               <p className="text-lg font-bold tracking-tight">InterviewHub</p>
             </div>
@@ -522,9 +524,11 @@ export function HomePage({
         <div className="mx-auto flex max-w-7xl flex-col gap-6 md:flex-row md:items-center md:justify-between">
           <div>
             <div className="flex items-center gap-3">
-              <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-sky-500 to-violet-500 text-sm font-bold text-white">
-                I
-              </div>
+              <img
+                src="/logo.svg"
+                alt="InterviewHub"
+                className="h-9 w-9 rounded-lg object-cover"
+              />
               <div className="font-bold">InterviewHub</div>
             </div>
           </div>

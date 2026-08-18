@@ -1,67 +1,132 @@
 import { useState } from "react";
-import { ArrowLeft, Lock, Mail, User, Eye, EyeOff, Github, Chrome } from "lucide-react";
-import { Link } from "react-router-dom";
+import { ArrowLeft, Lock, Mail, User, Eye, EyeOff } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "../components/ui";
+import { authApi } from "../services/authApi";
+import { apiClient } from "../services/api";
 import type { FormState, UserProfile } from "../types";
-
-const demoUser: UserProfile = {
-  id: "user-1",
-  name: "Rahul Sharma",
-  email: "rahul@example.com",
-  password: "demo123",
-  role: "Frontend Developer",
-  skills: ["React", "TypeScript", "Node.js", "CSS"],
-  preparationLevel: "Intermediate",
-  avatar: "RS",
-};
 
 export function AuthPage({
   onLogin,
 }: {
-  onLogin: (user: UserProfile) => void;
+  onLogin: (user: UserProfile, token?: string) => void;
 }) {
+  const navigate = useNavigate();
   const [mode, setMode] = useState<"login" | "register" | "forgot" | "reset">(
     "login",
   );
   const [form, setForm] = useState<FormState>({
-    email: demoUser.email,
-    password: demoUser.password,
-    name: demoUser.name,
+    email: "",
+    password: "",
+    name: "",
   });
   const [message, setMessage] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (mode === "login") {
-      if (
-        form.email === demoUser.email &&
-        form.password === demoUser.password
-      ) {
-        setMessage("Login successful. Redirecting to your dashboard...");
-        onLogin(demoUser);
-        window.location.href = "/dashboard";
-      } else {
-        setMessage(
-          "Invalid credentials. Use the demo account or create a new one.",
-        );
-      }
-      return;
-    }
+  const validate = () => {
+    const newErrors: Record<string, string> = {};
+    if (!form.email.trim()) newErrors.email = "Email is required";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email))
+      newErrors.email = "Invalid email format";
+    if (!form.password) newErrors.password = "Password is required";
+    else if (form.password.length < 6)
+      newErrors.password = "Password must be at least 6 characters";
     if (mode === "register") {
-      const createdUser: UserProfile = {
-        ...demoUser,
-        id: `user-${Date.now()}`,
-        name: form.name || demoUser.name,
-        email: form.email || demoUser.email,
-        password: form.password || demoUser.password,
-      };
-      onLogin(createdUser);
-      setMessage("Registration successful. Welcome to InterviewHub!");
-      window.location.href = "/dashboard";
-      return;
+      const name = form.name.trim();
+      if (!name) newErrors.name = "Name is required";
+      else if (name.length < 2)
+        newErrors.name = "Name must be at least 2 characters";
+      else if (name.length > 50)
+        newErrors.name = "Name must be 50 characters or fewer";
     }
-    setMessage("Password reset link has been prepared for this demo flow.");
+    if (form.password.length > 100)
+      newErrors.password = "Password must be 100 characters or fewer";
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!validate()) return;
+    setIsSubmitting(true);
+    setMessage("");
+
+    try {
+      if (mode === "login") {
+        const res = await authApi.login({
+          email: form.email.trim(),
+          password: form.password,
+        });
+        if (res.success && res.data) {
+          apiClient.setToken(res.data.accessToken);
+          const userProfile: UserProfile = {
+            id: res.data.user.id,
+            name: res.data.user.name,
+            email: res.data.user.email,
+            password: "",
+            role: res.data.user.role || "user",
+            skills: res.data.user.skills || [],
+            preparationLevel: res.data.user.preparationLevel || "Beginner",
+            avatar: res.data.user.name
+              .split(" ")
+              .map((n) => n[0])
+              .join("")
+              .slice(0, 2)
+              .toUpperCase(),
+          };
+          setMessage("Login successful. Redirecting to your dashboard...");
+          onLogin(userProfile, res.data.accessToken);
+          navigate("/dashboard", { replace: true });
+        } else {
+          setMessage("Invalid credentials. Please try again.");
+        }
+        return;
+      }
+
+      if (mode === "register") {
+        const res = await authApi.register({
+          name: form.name.trim(),
+          email: form.email.trim(),
+          password: form.password,
+        });
+        if (res.success && res.data) {
+          apiClient.setToken(res.data.accessToken);
+          const userProfile: UserProfile = {
+            id: res.data.user.id,
+            name: res.data.user.name,
+            email: res.data.user.email,
+            password: "",
+            role: res.data.user.role || "user",
+            skills: res.data.user.skills || [],
+            preparationLevel: res.data.user.preparationLevel || "Beginner",
+            avatar: res.data.user.name
+              .split(" ")
+              .map((n) => n[0])
+              .join("")
+              .slice(0, 2)
+              .toUpperCase(),
+          };
+          setMessage("Registration successful. Welcome to InterviewHub!");
+          onLogin(userProfile, res.data.accessToken);
+          navigate("/dashboard", { replace: true });
+        } else {
+          setMessage("Registration failed. Please try again.");
+        }
+        return;
+      }
+
+      setMessage("Password reset link has been sent to your email.");
+    } catch (error) {
+      setMessage(
+        error instanceof Error
+          ? error.message
+          : "Something went wrong. Please try again.",
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const isRegister = mode === "register";
@@ -104,9 +169,11 @@ export function AuthPage({
             </Link>
 
             <div className="mb-8">
-              <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-2xl bg-gradient-to-br from-sky-500 to-violet-500 font-bold text-white">
-                I
-              </div>
+              <img
+                src="/logo.svg"
+                alt="InterviewHub"
+                className="h-10 w-10 rounded-2xl object-cover"
+              />
               <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
                 {mode === "login"
                   ? "Welcome back"
@@ -125,24 +192,6 @@ export function AuthPage({
               </p>
             </div>
 
-            {/* OAuth Buttons */}
-            {(mode === "login" || mode === "register") && (
-              <div className="mb-6 grid grid-cols-2 gap-3">
-                <button
-                  type="button"
-                  className="flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
-                >
-                  <Chrome size={18} /> Google
-                </button>
-                <button
-                  type="button"
-                  className="flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
-                >
-                  <Github size={18} /> GitHub
-                </button>
-              </div>
-            )}
-
             <div className="mb-6 flex items-center gap-3">
               <div className="h-px flex-1 bg-slate-200 dark:bg-slate-700" />
               <span className="text-xs text-slate-500 dark:text-slate-400">
@@ -152,133 +201,152 @@ export function AuthPage({
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
-          {isRegister && (
-            <label className="block">
-              <span className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
-                Full name
-              </span>
-              <div className="relative">
-                <User
-                  className="absolute left-3 top-3 text-slate-400"
-                  size={18}
-                />
-                <input
-                  value={form.name || ""}
-                  onChange={(e) =>
-                    setForm((prev) => ({ ...prev, name: e.target.value }))
-                  }
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pl-10 pr-3 text-sm outline-none focus:border-sky-500 dark:border-slate-700 dark:bg-slate-950"
-                  placeholder="Enter your name"
-                />
-              </div>
-            </label>
-          )}
+              {isRegister && (
+                <label className="block">
+                  <span className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
+                    Full name
+                  </span>
+                  <div className="relative">
+                    <User
+                      className="absolute left-3 top-3 text-slate-400"
+                      size={18}
+                    />
+                    <input
+                      value={form.name || ""}
+                      onChange={(e) =>
+                        setForm((prev) => ({ ...prev, name: e.target.value }))
+                      }
+                      className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pl-10 pr-3 text-sm outline-none focus:border-sky-500 dark:border-slate-700 dark:bg-slate-950"
+                      placeholder="Enter your name"
+                    />
+                  </div>
+                  {errors.name && (
+                    <p className="mt-1 text-xs text-rose-600">{errors.name}</p>
+                  )}
+                </label>
+              )}
 
-          {(mode === "login" || mode === "register" || mode === "forgot") && (
-            <label className="block">
-              <span className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
-                Email
-              </span>
-              <div className="relative">
-                <Mail
-                  className="absolute left-3 top-3 text-slate-400"
-                  size={18}
-                />
-                <input
-                  type="email"
-                  value={form.email}
-                  onChange={(e) =>
-                    setForm((prev) => ({ ...prev, email: e.target.value }))
-                  }
-                  className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pl-10 pr-3 text-sm outline-none focus:border-sky-500 dark:border-slate-700 dark:bg-slate-950"
-                  placeholder="you@example.com"
-                />
-              </div>
-            </label>
-          )}
+              {(mode === "login" ||
+                mode === "register" ||
+                mode === "forgot") && (
+                <label className="block">
+                  <span className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
+                    Email
+                  </span>
+                  <div className="relative">
+                    <Mail
+                      className="absolute left-3 top-3 text-slate-400"
+                      size={18}
+                    />
+                    <input
+                      type="email"
+                      value={form.email}
+                      onChange={(e) =>
+                        setForm((prev) => ({ ...prev, email: e.target.value }))
+                      }
+                      className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pl-10 pr-3 text-sm outline-none focus:border-sky-500 dark:border-slate-700 dark:bg-slate-950"
+                      placeholder="you@example.com"
+                    />
+                  </div>
+                  {errors.email && (
+                    <p className="mt-1 text-xs text-rose-600">{errors.email}</p>
+                  )}
+                </label>
+              )}
 
-            {(mode === "login" || mode === "register" || mode === "reset") && (
-              <label className="block">
-                <span className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
-                  Password
-                </span>
-                <div className="relative">
-                  <Lock
-                    className="absolute left-3 top-3 text-slate-400"
-                    size={18}
-                  />
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    value={form.password}
-                    onChange={(e) =>
-                      setForm((prev) => ({
-                        ...prev,
-                        password: e.target.value,
-                      }))
-                    }
-                    className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pl-10 pr-10 text-sm outline-none focus:border-sky-500 dark:border-slate-700 dark:bg-slate-950"
-                    placeholder="••••••••"
-                  />
+              {(mode === "login" ||
+                mode === "register" ||
+                mode === "reset") && (
+                <label className="block">
+                  <span className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
+                    Password
+                  </span>
+                  <div className="relative">
+                    <Lock
+                      className="absolute left-3 top-3 text-slate-400"
+                      size={18}
+                    />
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      value={form.password}
+                      onChange={(e) =>
+                        setForm((prev) => ({
+                          ...prev,
+                          password: e.target.value,
+                        }))
+                      }
+                      className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pl-10 pr-10 text-sm outline-none focus:border-sky-500 dark:border-slate-700 dark:bg-slate-950"
+                      placeholder="••••••••"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                    >
+                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
+                  </div>
+                  {errors.password && (
+                    <p className="mt-1 text-xs text-rose-600">
+                      {errors.password}
+                    </p>
+                  )}
+                </label>
+              )}
+
+              <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-300">
+                {mode === "login" ? (
                   <button
                     type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                    onClick={() => setMode("forgot")}
+                    className="font-medium text-sky-600 hover:text-sky-500"
                   >
-                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    Forgot password?
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setMode("login")}
+                    className="font-medium text-sky-600 hover:text-sky-500"
+                  >
+                    Back to login
+                  </button>
+                )}
+              </div>
+
+              <Button type="submit" className="w-full" disabled={isSubmitting}>
+                {isSubmitting
+                  ? "Please wait..."
+                  : mode === "login"
+                    ? "Sign in"
+                    : mode === "register"
+                      ? "Create account"
+                      : mode === "forgot"
+                        ? "Send reset link"
+                        : "Update password"}
+              </Button>
+
+              {message && (
+                <div className="rounded-xl border border-sky-200 bg-sky-50 px-3 py-2 text-sm text-sky-700 dark:border-sky-900 dark:bg-sky-950/40 dark:text-sky-200">
+                  {message}
+                </div>
+              )}
+
+              {mode !== "forgot" && mode !== "reset" && (
+                <div className="text-center text-sm text-slate-500 dark:text-slate-300">
+                  {mode === "login" ? "New here?" : "Already have an account?"}{" "}
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setMode(mode === "login" ? "register" : "login")
+                    }
+                    className="font-semibold text-sky-600 hover:text-sky-500"
+                  >
+                    {mode === "login" ? "Create account" : "Sign in"}
                   </button>
                 </div>
-              </label>
-            )}
-
-            <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-300">
-              {mode === "login" ? (
-                <button
-                  type="button"
-                  onClick={() => setMode("forgot")}
-                  className="font-medium text-sky-600 hover:text-sky-500"
-                >
-                  Forgot password?
-                </button>
-              ) : (
-                <button
-                  type="button"
-                  onClick={() => setMode("login")}
-                  className="font-medium text-sky-600 hover:text-sky-500"
-                >
-                  Back to login
-                </button>
               )}
-            </div>
-
-            <Button type="submit" className="w-full">
-              {mode === "login"
-                ? "Sign in"
-                : mode === "register"
-                  ? "Create account"
-                  : mode === "forgot"
-                    ? "Send reset link"
-                    : "Update password"}
-            </Button>
-
-            {message && (
-              <div className="rounded-xl border border-sky-200 bg-sky-50 px-3 py-2 text-sm text-sky-700 dark:border-sky-900 dark:bg-sky-950/40 dark:text-sky-200">
-                {message}
-              </div>
-            )}
-
-            {mode !== "forgot" && mode !== "reset" && (
-              <div className="text-center text-sm text-slate-500 dark:text-slate-300">
-                {mode === "login" ? "New here?" : "Already have an account?"}{" "}
-                <button
-                  type="button"
-                  onClick={() => setMode(mode === "login" ? "register" : "login")}
-                  className="font-semibold text-sky-600 hover:text-sky-500"
-                >
-                  {mode === "login" ? "Create account" : "Sign in"}
-                </button>
-              </div>
-            )}
-          </form>
+            </form>
           </div>
 
           {/* Right Panel: Trust Ring & Testimonials */}
@@ -288,9 +356,11 @@ export function AuthPage({
               {/* Center circle */}
               <div className="absolute inset-0 flex items-center justify-center">
                 <div className="rounded-full border-2 border-dashed border-sky-200 p-8 dark:border-slate-700">
-                  <div className="flex h-20 w-20 items-center justify-center rounded-full bg-gradient-to-br from-sky-500 to-violet-500 font-bold text-white">
-                    I
-                  </div>
+                  <img
+                    src="/logo.svg"
+                    alt="InterviewHub"
+                    className="h-20 w-20 rounded-full object-cover shadow-lg shadow-sky-500/20"
+                  />
                 </div>
               </div>
 
