@@ -6,7 +6,6 @@ import { DashboardPage } from "./pages/DashboardPage";
 import { QuestionBankPage } from "./pages/QuestionBankPage";
 import { QuizPage } from "./pages/QuizPage";
 import { MockInterviewPage } from "./pages/MockInterviewPage";
-import { CodingPracticePage } from "./pages/CodingPracticePage";
 import { FlashcardsPage } from "./pages/FlashcardsPage";
 import { DailyChallengePage } from "./pages/DailyChallengePage";
 import { AnalyticsPage } from "./pages/AnalyticsPage";
@@ -16,10 +15,35 @@ import { ProfilePage } from "./pages/ProfilePage";
 import { useLocalStorage } from "./hooks/useLocalStorage";
 import { authApi } from "./services/authApi";
 import { apiClient } from "./services/api";
+import { Navbar } from "./components/Navbar";
 import type { UserProfile } from "./types";
 
-function ProtectedRoutes({ isAuthenticated }: { isAuthenticated: boolean }) {
-  return isAuthenticated ? <Outlet /> : <Navigate to="/auth" replace />;
+function ProtectedRoutes({
+  isAuthenticated,
+  user,
+  onLogout,
+  theme,
+  toggleTheme,
+}: {
+  isAuthenticated: boolean;
+  user: UserProfile | null;
+  onLogout: () => void;
+  theme: "light" | "dark";
+  toggleTheme: () => void;
+}) {
+  return isAuthenticated ? (
+    <>
+      <Navbar
+        user={user}
+        onLogout={onLogout}
+        theme={theme}
+        toggleTheme={toggleTheme}
+      />
+      <Outlet />
+    </>
+  ) : (
+    <Navigate to="/auth" replace />
+  );
 }
 
 function App() {
@@ -117,6 +141,13 @@ function App() {
     apiClient.setToken(null);
   };
 
+  useEffect(() => {
+    apiClient.setOnUnauthorized(() => {
+      setUser(null);
+      setIsAuthenticated(false);
+    });
+  }, [setUser, setIsAuthenticated]);
+
   if (isLoading) {
     return (
       <div className={appClass}>
@@ -135,7 +166,14 @@ function App() {
         <Routes>
           <Route
             path="/"
-            element={<HomePage theme={theme} toggleTheme={toggleTheme} />}
+            element={
+              <HomePage
+                theme={theme}
+                toggleTheme={toggleTheme}
+                isAuthenticated={isAuthenticated}
+                user={user}
+              />
+            }
           />
           <Route
             path="/auth"
@@ -148,7 +186,15 @@ function App() {
             }
           />
           <Route
-            element={<ProtectedRoutes isAuthenticated={isAuthenticated} />}
+            element={
+              <ProtectedRoutes
+                isAuthenticated={isAuthenticated}
+                user={user}
+                onLogout={logout}
+                theme={theme}
+                toggleTheme={toggleTheme}
+              />
+            }
           >
             <Route
               path="/dashboard"
@@ -166,9 +212,6 @@ function App() {
               element={
                 <QuestionBankPage
                   user={user}
-                  onLogout={logout}
-                  theme={theme}
-                  toggleTheme={toggleTheme}
                 />
               }
             />
@@ -177,9 +220,6 @@ function App() {
               element={
                 <QuizPage
                   user={user}
-                  onLogout={logout}
-                  theme={theme}
-                  toggleTheme={toggleTheme}
                 />
               }
             />
@@ -188,20 +228,6 @@ function App() {
               element={
                 <MockInterviewPage
                   user={user}
-                  onLogout={logout}
-                  theme={theme}
-                  toggleTheme={toggleTheme}
-                />
-              }
-            />
-            <Route
-              path="/coding"
-              element={
-                <CodingPracticePage
-                  user={user}
-                  onLogout={logout}
-                  theme={theme}
-                  toggleTheme={toggleTheme}
                 />
               }
             />
@@ -210,9 +236,6 @@ function App() {
               element={
                 <FlashcardsPage
                   user={user}
-                  onLogout={logout}
-                  theme={theme}
-                  toggleTheme={toggleTheme}
                 />
               }
             />
@@ -221,9 +244,6 @@ function App() {
               element={
                 <DailyChallengePage
                   user={user}
-                  onLogout={logout}
-                  theme={theme}
-                  toggleTheme={toggleTheme}
                 />
               }
             />
@@ -232,9 +252,6 @@ function App() {
               element={
                 <AnalyticsPage
                   user={user}
-                  onLogout={logout}
-                  theme={theme}
-                  toggleTheme={toggleTheme}
                 />
               }
             />
@@ -243,9 +260,6 @@ function App() {
               element={
                 <BookmarksPage
                   user={user}
-                  onLogout={logout}
-                  theme={theme}
-                  toggleTheme={toggleTheme}
                 />
               }
             />
@@ -254,9 +268,6 @@ function App() {
               element={
                 <HrPreparationPage
                   user={user}
-                  onLogout={logout}
-                  theme={theme}
-                  toggleTheme={toggleTheme}
                 />
               }
             />
@@ -265,9 +276,6 @@ function App() {
               element={
                 <ProfilePage
                   user={user}
-                  onLogout={logout}
-                  theme={theme}
-                  toggleTheme={toggleTheme}
                 />
               }
             />

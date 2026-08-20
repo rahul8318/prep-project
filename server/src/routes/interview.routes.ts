@@ -2,6 +2,7 @@ import { Router } from "express";
 import {
   startInterview,
   submitAnswer,
+  nextQuestion,
   completeInterview,
   getInterviewHistory,
   getInterviewResult,
@@ -14,6 +15,7 @@ const router = Router();
 
 router.post("/start", authMiddleware, startInterview);
 router.post("/:id/answer", authMiddleware, submitAnswer);
+router.post("/:id/next", authMiddleware, nextQuestion);
 router.post("/:id/complete", authMiddleware, completeInterview);
 router.get("/history", authMiddleware, validateRequest(paginationSchema), getInterviewHistory);
 router.get("/:id", authMiddleware, getInterviewResult);

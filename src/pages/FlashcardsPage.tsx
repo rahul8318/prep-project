@@ -5,14 +5,8 @@ import { flashcardApi } from "../services/flashcardApi";
 
 export function FlashcardsPage({
   user,
-  onLogout,
-  theme,
-  toggleTheme,
 }: {
   user: any;
-  onLogout: () => void;
-  theme: "light" | "dark";
-  toggleTheme: () => void;
 }) {
   const [index, setIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);
@@ -81,20 +75,6 @@ export function FlashcardsPage({
             <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
               Flashcards
             </h1>
-          </div>
-          <div className="flex items-center gap-3">
-            <button
-              onClick={toggleTheme}
-              className="rounded-full border border-slate-200 px-3 py-2 text-xs dark:border-slate-700"
-            >
-              {theme === "dark" ? "Light" : "Dark"}
-            </button>
-            <button
-              onClick={onLogout}
-              className="rounded-xl bg-slate-900 px-3 py-2 text-sm font-medium text-white dark:bg-slate-100 dark:text-slate-900"
-            >
-              Logout
-            </button>
           </div>
         </div>
 

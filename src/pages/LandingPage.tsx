@@ -12,8 +12,11 @@ import {
   Trophy,
   Users,
 } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "../components/ui";
+import { analyticsApi } from "../services/analyticsApi";
+import type { AnalyticsOverview, CategoryPerformance } from "../services/analyticsApi";
 
 const features = [
   {
@@ -103,10 +106,65 @@ const testimonials = [
 export function HomePage({
   theme,
   toggleTheme,
+  isAuthenticated = false,
+  user,
 }: {
   theme: "light" | "dark";
   toggleTheme: () => void;
+  isAuthenticated?: boolean;
+  user: any;
 }) {
+  const [overview, setOverview] = useState<AnalyticsOverview | null>(null);
+  const [categories, setCategories] = useState<CategoryPerformance[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!isAuthenticated || !user) {
+      setOverview(null);
+      setCategories([]);
+      return;
+    }
+
+    let cancelled = false;
+    setLoading(true);
+
+    const loadPreview = async () => {
+      try {
+        const [overviewRes, categoriesRes] = await Promise.all([
+          analyticsApi.getOverview(),
+          analyticsApi.getCategories(),
+        ]);
+
+        if (cancelled) return;
+
+        if (overviewRes.success && overviewRes.data) {
+          setOverview(overviewRes.data);
+        }
+        if (categoriesRes.success && Array.isArray(categoriesRes.data)) {
+          setCategories(categoriesRes.data);
+        }
+      } catch {
+        // keep empty state on error
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+
+    void loadPreview();
+    return () => {
+      cancelled = true;
+    };
+  }, [isAuthenticated, user]);
+
+  const preparationPercent = overview?.preparationPercentage ?? 0;
+  const streak = overview?.streak ?? 0;
+  const topCategories = categories
+    .filter((c) => c.score > 0)
+    .slice(0, 2);
+  const weakCategories = categories
+    .filter((c) => c.score > 0)
+    .sort((a, b) => a.score - b.score)
+    .slice(0, 3);
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-50">
       <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/80 backdrop-blur-xl dark:border-slate-800 dark:bg-slate-950/80">
@@ -162,18 +220,34 @@ export function HomePage({
             >
               {theme === "dark" ? "Light" : "Dark"}
             </button>
-            <Link
-              to="/auth"
-              className="hidden rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium hover:border-sky-300 sm:inline-flex"
-            >
-              Login
-            </Link>
-            <Link
-              to="/dashboard"
-              className="inline-flex items-center gap-2 rounded-xl bg-sky-600 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-sky-500/20 hover:bg-sky-500"
-            >
-              Get Started <ArrowRight size={16} />
-            </Link>
+            {isAuthenticated && user ? (
+              <>
+                <span className="hidden text-sm font-medium text-slate-700 dark:text-slate-200 sm:inline-flex">
+                  {user.name}
+                </span>
+                <Link
+                  to="/dashboard"
+                  className="inline-flex items-center gap-2 rounded-xl bg-sky-600 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-sky-500/20 hover:bg-sky-500"
+                >
+                  Dashboard <ArrowRight size={16} />
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link
+                  to="/auth"
+                  className="hidden rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium hover:border-sky-300 sm:inline-flex"
+                >
+                  Login
+                </Link>
+                <Link
+                  to="/dashboard"
+                  className="inline-flex items-center gap-2 rounded-xl bg-sky-600 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-sky-500/20 hover:bg-sky-500"
+                >
+                  Get Started <ArrowRight size={16} />
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </header>
@@ -240,23 +314,44 @@ export function HomePage({
                           Preparation
                         </div>
                         <div className="mt-3 text-3xl font-bold text-white">
-                          82%
+                          {isAuthenticated ? `${preparationPercent}%` : "—"}
                         </div>
                         <div className="mt-4 h-2 rounded-full bg-slate-700">
-                          <div className="h-full w-[82%] rounded-full bg-gradient-to-r from-sky-500 to-violet-500" />
+                          <div
+                            className="h-full rounded-full bg-gradient-to-r from-sky-500 to-violet-500"
+                            style={{
+                              width: isAuthenticated
+                                ? `${Math.min(100, preparationPercent)}%`
+                                : "0%",
+                            }}
+                          />
                         </div>
                         <div className="mt-4 flex items-center justify-between text-xs text-slate-400">
-                          <span>JavaScript</span>
-                          <span>85%</span>
+                          <span>
+                            {topCategories[0]?.name || "JavaScript"}
+                          </span>
+                          <span>
+                            {isAuthenticated
+                              ? `${topCategories[0]?.score ?? 0}%`
+                              : "—"}
+                          </span>
                         </div>
                         <div className="mt-2 flex items-center justify-between text-xs text-slate-400">
-                          <span>React</span>
-                          <span>72%</span>
+                          <span>
+                            {topCategories[1]?.name || "React"}
+                          </span>
+                          <span>
+                            {isAuthenticated
+                              ? `${topCategories[1]?.score ?? 0}%`
+                              : "—"}
+                          </span>
                         </div>
                       </div>
                       <div className="rounded-2xl bg-gradient-to-br from-sky-500 to-violet-500 p-4 text-white">
                         <div className="text-sm text-sky-100">Daily streak</div>
-                        <div className="mt-3 text-3xl font-bold">12 days</div>
+                        <div className="mt-3 text-3xl font-bold">
+                          {isAuthenticated ? `${streak} days` : "—"}
+                        </div>
                         <div className="mt-6 flex items-center gap-2 text-sm">
                           <CheckCircle2 size={16} /> Consistent practice
                         </div>
@@ -265,21 +360,39 @@ export function HomePage({
                     <div className="mt-4 rounded-2xl bg-slate-800 p-4">
                       <div className="mb-2 flex items-center justify-between text-sm text-slate-300">
                         <span>Weak topics</span>
-                        <span>Needs Review</span>
+                        <span>
+                          {isAuthenticated && weakCategories.length > 0
+                            ? "Needs Review"
+                            : "—"}
+                        </span>
                       </div>
                       <div className="space-y-2 text-xs text-slate-300">
-                        <div className="flex items-center justify-between">
-                          <span>TypeScript</span>
-                          <span>55%</span>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <span>DSA</span>
-                          <span>48%</span>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <span>React Hooks</span>
-                          <span>68%</span>
-                        </div>
+                        {weakCategories.length > 0 ? (
+                          weakCategories.map((topic) => (
+                            <div
+                              key={topic.name}
+                              className="flex items-center justify-between"
+                            >
+                              <span>{topic.name}</span>
+                              <span>{topic.score}%</span>
+                            </div>
+                          ))
+                        ) : (
+                          <>
+                            <div className="flex items-center justify-between">
+                              <span>TypeScript</span>
+                              <span>—</span>
+                            </div>
+                            <div className="flex items-center justify-between">
+                              <span>DSA</span>
+                              <span>—</span>
+                            </div>
+                            <div className="flex items-center justify-between">
+                              <span>React Hooks</span>
+                              <span>—</span>
+                            </div>
+                          </>
+                        )}
                       </div>
                     </div>
                   </div>

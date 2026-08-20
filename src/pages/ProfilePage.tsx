@@ -11,14 +11,8 @@ import { Button, Card } from "../components/ui";
 
 export function ProfilePage({
   user,
-  onLogout,
-  theme,
-  toggleTheme,
 }: {
   user: any;
-  onLogout: () => void;
-  theme: "light" | "dark";
-  toggleTheme: () => void;
 }) {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
@@ -31,20 +25,6 @@ export function ProfilePage({
             <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
               Profile
             </h1>
-          </div>
-          <div className="flex items-center gap-3">
-            <button
-              onClick={toggleTheme}
-              className="rounded-full border border-slate-200 px-3 py-2 text-xs dark:border-slate-700"
-            >
-              {theme === "dark" ? "Light" : "Dark"}
-            </button>
-            <button
-              onClick={onLogout}
-              className="rounded-xl bg-slate-900 px-3 py-2 text-sm font-medium text-white dark:bg-slate-100 dark:text-slate-900"
-            >
-              Logout
-            </button>
           </div>
         </div>
 

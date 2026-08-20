@@ -1,7 +1,12 @@
-const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+const API_BASE = import.meta.env.VITE_API_URL || "/api";
 
 class ApiClient {
   private token: string | null = null;
+  private onUnauthorized?: () => void;
+
+  setOnUnauthorized(callback: () => void) {
+    this.onUnauthorized = callback;
+  }
 
   setToken(token: string | null) {
     this.token = token;
@@ -43,6 +48,7 @@ class ApiClient {
       if (response.status === 401) {
         localStorage.removeItem("interviewhub-token");
         this.setToken(null);
+        this.onUnauthorized?.();
       }
       const error = await response.json().catch(() => null);
       const details = Array.isArray(error?.errors)

@@ -21,6 +21,15 @@ export const submitAnswer = async (req: AuthRequest, res: Response) => {
   }
 };
 
+export const nextQuestion = async (req: AuthRequest, res: Response) => {
+  try {
+    const result = await interviewService.nextQuestion(req.user!.id, req.body.sessionId);
+    sendSuccess(res, result, "Next question retrieved");
+  } catch (error) {
+    sendError(res, "Failed to get next question", 500, [(error as Error).message]);
+  }
+};
+
 export const completeInterview = async (req: AuthRequest, res: Response) => {
   try {
     const result = await interviewService.completeInterview(req.user!.id, req.params.id as string);
@@ -56,4 +65,4 @@ export const getInterviewResult = async (req: AuthRequest, res: Response) => {
   }
 };
 
-export const interviewController = { startInterview, submitAnswer, completeInterview, getInterviewHistory, getInterviewResult };
+export const interviewController = { startInterview, submitAnswer, nextQuestion, completeInterview, getInterviewHistory, getInterviewResult };

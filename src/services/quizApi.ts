@@ -22,7 +22,7 @@ export const quizApi = {
   submitQuiz: (data: QuizAnswer) =>
     apiClient.post<{
       success: boolean;
-      data: { result: { _id: string; score: number; totalQuestions: number; correctAnswers: number; incorrectAnswers: number; accuracy: number; timeTaken: number; category: string; difficulty: string; createdAt: string }; score: number; accuracy: number; correctAnswers: number; incorrectAnswers: number; timeTaken: number };
+      data: { result: { _id: string; questions: Array<{ questionId: string; question: string; options: string[]; correctAnswer: string; explanation: string; userAnswer: string }>; score: number; totalQuestions: number; correctAnswers: number; incorrectAnswers: number; accuracy: number; timeTaken: number; category: string; difficulty: string; createdAt: string }; score: number; accuracy: number; correctAnswers: number; incorrectAnswers: number; timeTaken: number };
     }>("/quizzes/submit", data),
 
   getHistory: (filters?: { page?: number; limit?: number }) => {

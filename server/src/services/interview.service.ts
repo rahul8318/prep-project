@@ -1,104 +1,112 @@
 import { Question } from "../models/Question";
 import { InterviewResult } from "../models/InterviewResult";
 
-const interviewSessions = new Map<
-  string,
-  {
-    userId: string;
-    category: string;
+interface InterviewSession {
+  userId: string;
+  category: string;
+  difficulty: string;
+  questions: Array<{
+    _id: string;
+    question: string;
+    topic: string;
     difficulty: string;
-    questions: Array<{
-      _id: string;
-      question: string;
-      topic: string;
-      difficulty: string;
-      options?: string[];
-      correctAnswer: string;
-      explanation: string;
-      userAnswer?: string;
-    }>;
-    expiresAt: number;
-  }
->();
+    options?: string[];
+    correctAnswer: string;
+    explanation: string;
+    userAnswer?: string;
+  }>;
+  currentIndex: number;
+  expiresAt: number;
+}
+
+const interviewSessions = new Map<string, InterviewSession>();
 
 const SESSION_DURATION = 30 * 60 * 1000;
 
 const shuffleArray = <T>(array: T[]): T[] => {
-  const shuffled = [...array];
-  for (let i = shuffled.length - 1; i > 0; i--) {
+  const arr = [...array];
+  for (let i = arr.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    [arr[i], arr[j]] = [arr[j], arr[i]];
   }
-  return shuffled;
+  return arr;
 };
 
-const generateMockFeedback = () => {
-  const strengthsList = [
-    "Strong understanding of core concepts",
-    "Clear explanation of technical terms",
-    "Good problem-solving approach",
-    "Effective use of examples",
-    "Demonstrates solid foundation",
-    "Articulate communication style",
-    "Structured thinking process",
-    "Attention to detail",
-  ];
+const generateFeedback = (correctCount: number, total: number, topicStats: Record<string, { correct: number; total: number }>) => {
+  const accuracy = total > 0 ? (correctCount / total) * 100 : 0;
 
-  const weaknessesList = [
-    "Could improve depth in advanced topics",
-    "More practice with edge cases needed",
-    "Limited experience with system design",
-    "Need to strengthen debugging skills",
-    "Time management during interviews",
-    "Less exposure to real-world scenarios",
-    "Could elaborate more on trade-offs",
-    "Need more hands-on project experience",
-  ];
+  const strengths: string[] = [];
+  const weaknesses: string[] = [];
+  const recommendations: string[] = [];
 
-  const recommendationsList = [
-    "Practice more system design questions",
-    "Review advanced data structures",
-    "Build more real-world projects",
-    "Participate in mock interviews regularly",
-    "Study industry best practices",
-    "Work on open source contributions",
-    "Focus on behavioral question preparation",
-    "Improve technical writing skills",
-  ];
+  Object.entries(topicStats).forEach(([topic, stats]) => {
+    const topicAccuracy = stats.total > 0 ? (stats.correct / stats.total) * 100 : 0;
+    if (topicAccuracy >= 70) {
+      strengths.push(`Strong in ${topic}`);
+    } else if (topicAccuracy <= 40) {
+      weaknesses.push(`Needs improvement in ${topic}`);
+      recommendations.push(`Practice more ${topic} questions`);
+    }
+  });
 
-  const pick = (arr: string[], count: number) => {
-    const shuffled = shuffleArray(arr);
-    return shuffled.slice(0, count);
-  };
+  if (strengths.length === 0) {
+    strengths.push("Completed the interview session");
+  }
+  if (weaknesses.length === 0) {
+    weaknesses.push("Review incorrect answers for improvement areas");
+  }
+  if (recommendations.length === 0) {
+    recommendations.push("Continue practicing across all topics");
+  }
+
+  const delta = strengths.length > weaknesses.length ? 10 : -5;
+  const technicalScore = Math.round(Math.min(95, Math.max(40, accuracy + delta)));
+  const communicationScore = Math.round(Math.min(95, Math.max(40, accuracy + Math.random() * 20)));
 
   return {
-    strengths: pick(strengthsList, 2 + Math.floor(Math.random() * 2)),
-    weaknesses: pick(weaknessesList, 2 + Math.floor(Math.random() * 2)),
-    recommendations: pick(recommendationsList, 2 + Math.floor(Math.random() * 2)),
+    strengths: strengths.slice(0, 3),
+    weaknesses: weaknesses.slice(0, 3),
+    recommendations: recommendations.slice(0, 3),
+    technicalScore,
+    communicationScore,
   };
 };
 
 export const startInterview = async (
   userId: string,
-  data: { category: string; difficulty: string },
+  data: { category?: string; difficulty?: string; count?: number },
 ) => {
-  const { category, difficulty } = data;
-  const query: Record<string, unknown> = {};
+  const { category, difficulty, count = 5 } = data;
 
-  if (category) query.category = category;
+  const categoryMap: Record<string, string[]> = {
+    Frontend: ["JavaScript", "React", "HTML", "CSS", "TypeScript"],
+    Backend: ["Node.js", "DBMS", "Computer Networks", "Operating Systems", "DSA"],
+    "Full Stack": ["JavaScript", "React", "HTML", "CSS", "TypeScript", "Node.js", "DBMS", "Computer Networks", "Operating Systems", "DSA"],
+    "System Design": ["DSA", "DBMS", "Computer Networks", "Operating Systems"],
+  };
+
+  const categories = categoryMap[category || ""] || [];
+  const query: Record<string, unknown> = { type: "MCQ" };
+
+  if (categories.length > 0) {
+    query.category = { $in: categories };
+  }
   if (difficulty) query.difficulty = difficulty;
 
-  const allQuestions = await Question.find(query).limit(20);
-  const shuffled = shuffleArray(allQuestions);
-  const selectedCount = 3 + Math.floor(Math.random() * 3);
-  const selected = shuffled.slice(0, Math.min(selectedCount, shuffled.length));
+  const questions = await Question.find(query).limit(count * 3);
+  const shuffled = shuffleArray(questions);
+  const selected = shuffled.slice(0, count);
+
+  if (selected.length === 0) {
+    throw new Error("No questions available for the selected category and difficulty.");
+  }
 
   const sessionQuestions = selected.map((q: any) => ({
     _id: q._id.toString(),
     question: q.question,
     topic: q.topic,
     difficulty: q.difficulty,
-    options: q.options,
+    options: shuffleArray([...q.options]),
     correctAnswer: q.correctAnswer,
     explanation: q.explanation,
   }));
@@ -106,24 +114,26 @@ export const startInterview = async (
   const sessionId = `interview_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
   interviewSessions.set(sessionId, {
     userId,
-    category,
-    difficulty,
+    category: category || "General",
+    difficulty: difficulty || "Intermediate",
     questions: sessionQuestions,
+    currentIndex: 0,
     expiresAt: Date.now() + SESSION_DURATION,
   });
 
-  const responseQuestions = sessionQuestions.map((q) => ({
-    id: q._id,
-    question: q.question,
-    topic: q.topic,
-    difficulty: q.difficulty,
-    options: q.options,
-  }));
-
+  const firstQuestion = sessionQuestions[0];
   return {
     sessionId,
-    questions: responseQuestions,
-    timeLimit: 900,
+    currentQuestion: {
+      id: firstQuestion._id,
+      question: firstQuestion.question,
+      topic: firstQuestion.topic,
+      difficulty: firstQuestion.difficulty,
+      options: firstQuestion.options,
+      currentIndex: 0,
+      totalQuestions: sessionQuestions.length,
+    },
+    totalQuestions: sessionQuestions.length,
   };
 };
 
@@ -147,7 +157,35 @@ export const submitAnswer = async (
   }
 
   question.userAnswer = data.answer;
-  return { success: true };
+  return { success: true, currentIndex: session.currentIndex };
+};
+
+export const nextQuestion = async (userId: string, sessionId: string) => {
+  const session = interviewSessions.get(sessionId);
+  if (!session || session.userId !== userId) {
+    throw new Error("Invalid or expired interview session");
+  }
+
+  session.currentIndex += 1;
+  const idx = session.currentIndex;
+
+  if (idx >= session.questions.length) {
+    return { done: true };
+  }
+
+  const q = session.questions[idx];
+  return {
+    done: false,
+    currentQuestion: {
+      id: q._id,
+      question: q.question,
+      topic: q.topic,
+      difficulty: q.difficulty,
+      options: q.options,
+      currentIndex: idx,
+      totalQuestions: session.questions.length,
+    },
+  };
 };
 
 export const completeInterview = async (userId: string, sessionId: string) => {
@@ -156,21 +194,31 @@ export const completeInterview = async (userId: string, sessionId: string) => {
     throw new Error("Invalid or expired interview session");
   }
 
-  const technicalScore = Math.round(60 + Math.random() * 35);
-  const communicationScore = Math.round(65 + Math.random() * 30);
-  const score = Math.round((technicalScore + communicationScore) / 2);
+  let correctAnswers = 0;
+  const topicStats: Record<string, { correct: number; total: number }> = {};
 
-  const { strengths, weaknesses, recommendations } = generateMockFeedback();
+  session.questions.forEach((q) => {
+    if (!topicStats[q.topic]) {
+      topicStats[q.topic] = { correct: 0, total: 0 };
+    }
+    topicStats[q.topic].total += 1;
+    if (q.userAnswer === q.correctAnswer) {
+      correctAnswers += 1;
+      topicStats[q.topic].correct += 1;
+    }
+  });
+
+  const totalQuestions = session.questions.length;
+  const feedback = generateFeedback(correctAnswers, totalQuestions, topicStats);
 
   const questions = session.questions.map((q) => ({
     questionId: q._id,
     question: q.question,
+    topic: q.topic,
+    options: q.options,
+    correctAnswer: q.correctAnswer,
+    explanation: q.explanation,
     userAnswer: q.userAnswer || "",
-  }));
-
-  const answers = session.questions.map((q) => ({
-    questionId: q._id,
-    answer: q.userAnswer || "",
   }));
 
   const result = await InterviewResult.create({
@@ -178,13 +226,16 @@ export const completeInterview = async (userId: string, sessionId: string) => {
     category: session.category,
     difficulty: session.difficulty,
     questions,
-    answers,
-    score,
-    technicalScore,
-    communicationScore,
-    strengths,
-    weaknesses,
-    recommendations,
+    answers: questions.map((q) => ({
+      questionId: q.questionId,
+      answer: q.userAnswer,
+    })),
+    score: feedback.technicalScore,
+    technicalScore: feedback.technicalScore,
+    communicationScore: feedback.communicationScore,
+    strengths: feedback.strengths,
+    weaknesses: feedback.weaknesses,
+    recommendations: feedback.recommendations,
   });
 
   interviewSessions.delete(sessionId);
@@ -198,10 +249,7 @@ export const getInterviewHistory = async (userId: string, pagination: { page?: n
   const skip = getSkip(pg.page, pg.limit);
 
   const [data, total] = await Promise.all([
-    InterviewResult.find({ userId })
-      .skip(skip)
-      .limit(pg.limit)
-      .sort({ createdAt: -1 }),
+    InterviewResult.find({ userId }).skip(skip).limit(pg.limit).sort({ createdAt: -1 }),
     InterviewResult.countDocuments({ userId }),
   ]);
 
@@ -220,4 +268,4 @@ export const getInterviewResult = async (userId: string, resultId: string) => {
   return InterviewResult.findOne({ _id: resultId, userId });
 };
 
-export const interviewService = { startInterview, submitAnswer, completeInterview, getInterviewHistory, getInterviewResult };
+export const interviewService = { startInterview, submitAnswer, nextQuestion, completeInterview, getInterviewHistory, getInterviewResult };

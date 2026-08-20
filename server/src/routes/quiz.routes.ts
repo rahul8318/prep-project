@@ -7,7 +7,7 @@ import { paginationSchema, startQuizSchema } from "../validators";
 const router = Router();
 
 router.post("/start", authMiddleware, validateRequest(startQuizSchema, "body"), quizController.startQuiz);
-router.post("/:id/submit", authMiddleware, quizController.submitQuiz);
+router.post("/submit", authMiddleware, quizController.submitQuiz);
 router.get("/history", authMiddleware, validateRequest(paginationSchema, "query"), quizController.getQuizHistory);
 router.get("/results/:id", authMiddleware, quizController.getQuizResult);
 
