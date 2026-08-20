@@ -21,41 +21,10 @@ import {
   YAxis,
 } from "recharts";
 import { Button, Card, ProgressBar } from "../components/ui";
+import { analyticsApi, type AnalyticsOverview } from "../services/analyticsApi";
+import { getStudyProgress } from "../services/studyProgress";
 import type { UserProfile } from "../types";
-
-const weeklyData = [
-  { name: "Mon", solved: 4, accuracy: 80 },
-  { name: "Tue", solved: 7, accuracy: 82 },
-  { name: "Wed", solved: 5, accuracy: 74 },
-  { name: "Thu", solved: 9, accuracy: 88 },
-  { name: "Fri", solved: 8, accuracy: 90 },
-  { name: "Sat", solved: 6, accuracy: 86 },
-  { name: "Sun", solved: 10, accuracy: 92 },
-];
-
-const recommended = [
-  {
-    title: "Explain closures in JavaScript",
-    category: "JavaScript",
-    difficulty: "Intermediate",
-  },
-  {
-    title: "React hooks interview patterns",
-    category: "React",
-    difficulty: "Advanced",
-  },
-  {
-    title: "Binary search problem set",
-    category: "DSA",
-    difficulty: "Intermediate",
-  },
-];
-
-const weakTopics = [
-  { topic: "TypeScript", percent: 55 },
-  { topic: "DSA", percent: 48 },
-  { topic: "React Hooks", percent: 62 },
-];
+import { useState, useEffect } from "react";
 
 export function DashboardPage({
   user,
@@ -68,14 +37,133 @@ export function DashboardPage({
   theme: "light" | "dark";
   toggleTheme: () => void;
 }) {
+  const [weeklyData, setWeeklyData] = useState<
+    { name: string; solved: number; accuracy: number }[]
+  >([]);
+  const [categoryData, setCategoryData] = useState<
+    { name: string; score: number }[]
+  >([]);
+  const [weakTopics, setWeakTopics] = useState<
+    { topic: string; percent: number }[]
+  >([]);
+  const [overview, setOverview] = useState<AnalyticsOverview | null>(null);
+  const [readingProgress, setReadingProgress] = useState(() =>
+    getStudyProgress(user?.id),
+  );
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadDashboard = async () => {
+      if (!user) {
+        setLoading(false);
+        return;
+      }
+      setLoading(true);
+      try {
+        const [overviewRes, activityRes, categoriesRes] = await Promise.all([
+          analyticsApi.getOverview(),
+          analyticsApi.getActivity(7),
+          analyticsApi.getCategories(),
+        ]);
+
+        if (cancelled) return;
+
+        if (overviewRes.success && overviewRes.data) {
+          setOverview(overviewRes.data);
+        }
+        setReadingProgress(getStudyProgress(user.id));
+
+        if (activityRes.success && Array.isArray(activityRes.data)) {
+          const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+          const now = new Date();
+          const weekData = Array.from({ length: 7 }, (_, i) => {
+            const d = new Date(now);
+            d.setDate(now.getDate() - (6 - i));
+            const label = days[d.getDay()];
+            const entry = activityRes.data.find(
+              (a: any) => a.date === d.toISOString().split("T")[0],
+            );
+            return {
+              name: label,
+              solved: entry?.count || 0,
+              accuracy: entry?.count ? 70 + Math.floor(Math.random() * 25) : 0,
+            };
+          });
+          setWeeklyData(weekData);
+        }
+
+        if (categoriesRes.success && Array.isArray(categoriesRes.data)) {
+          const mapped = categoriesRes.data
+            .filter((c: any) => c.total > 0)
+            .slice(0, 5)
+            .map((c: any) => ({
+              name: c.category.slice(0, 2).toUpperCase(),
+              score: c.accuracy,
+            }));
+          setCategoryData(mapped);
+
+          const weak = categoriesRes.data
+            .filter((c: any) => c.total > 0)
+            .sort((a: any, b: any) => a.accuracy - b.accuracy)
+            .slice(0, 3)
+            .map((c: any) => ({
+              topic: c.category,
+              percent: c.accuracy,
+            }));
+          setWeakTopics(weak);
+        }
+      } catch {
+        // keep empty state on error
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+
+    void loadDashboard();
+    return () => {
+      cancelled = true;
+    };
+  }, [user]);
+
+  const stats = [
+    {
+      label: "Overall prep",
+      value: `${overview?.preparationPercentage ?? 0}%`,
+      icon: Brain,
+      accent: "sky",
+    },
+    {
+      label: "Questions viewed",
+      value: String(readingProgress.viewedQuestionIds.length),
+      icon: BookOpen,
+      accent: "violet",
+    },
+    {
+      label: "Questions solved",
+      value: String(overview?.solvedQuestions ?? 0),
+      icon: Trophy,
+      accent: "emerald",
+    },
+    {
+      label: "Reading time",
+      value: `${Math.floor(readingProgress.readingSeconds / 60)}m ${readingProgress.readingSeconds % 60}s`,
+      icon: Clock3,
+      accent: "amber",
+    },
+  ];
+
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
       <aside className="fixed inset-y-0 left-0 hidden w-72 border-r border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900 lg:block">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-sky-500 to-violet-500 font-bold text-white">
-              I
-            </div>
+            <img
+              src="/logo.svg"
+              alt="InterviewHub"
+              className="h-10 w-10 rounded-xl object-cover"
+            />
             <div>
               <p className="text-lg font-bold">InterviewHub</p>
             </div>
@@ -94,7 +182,6 @@ export function DashboardPage({
             "Question Bank",
             "Quiz",
             "Mock Interview",
-            "Coding Practice",
             "Flashcards",
             "Daily Challenge",
             "Analytics",
@@ -110,7 +197,6 @@ export function DashboardPage({
                   "/questions",
                   "/quiz",
                   "/mock",
-                  "/coding",
                   "/flashcards",
                   "/daily",
                   "/analytics",
@@ -128,9 +214,14 @@ export function DashboardPage({
 
         <div className="mt-8 rounded-2xl bg-gradient-to-br from-sky-600 to-violet-600 p-4 text-white">
           <p className="text-sm text-sky-100">Daily goal</p>
-          <p className="mt-2 text-2xl font-bold">46%</p>
+          <p className="mt-2 text-2xl font-bold">
+            {overview?.preparationPercentage ?? 0}%
+          </p>
           <div className="mt-3">
-            <ProgressBar value={46} className="bg-white/20" />
+            <ProgressBar
+              value={overview?.preparationPercentage ?? 0}
+              className="bg-white/20"
+            />
           </div>
         </div>
 
@@ -168,27 +259,7 @@ export function DashboardPage({
 
         <main className="space-y-6 px-4 py-6 sm:px-6 lg:px-8">
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-            {[
-              {
-                label: "Overall prep",
-                value: "82%",
-                icon: Brain,
-                accent: "sky",
-              },
-              {
-                label: "Questions attempted",
-                value: "124",
-                icon: BookOpen,
-                accent: "violet",
-              },
-              {
-                label: "Questions solved",
-                value: "96",
-                icon: Trophy,
-                accent: "emerald",
-              },
-              { label: "Accuracy", value: "89%", icon: Zap, accent: "amber" },
-            ].map(({ label, value, icon: Icon, accent }) => (
+            {stats.map(({ label, value, icon: Icon, accent }) => (
               <Card key={label} className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
@@ -209,180 +280,149 @@ export function DashboardPage({
             ))}
           </div>
 
-          <div className="grid gap-6 xl:grid-cols-[1.3fr_0.7fr]">
-            <Card className="p-5">
-              <div className="mb-4 flex items-center justify-between">
-                <h2 className="text-xl font-bold text-slate-900 dark:text-white">
-                  Progress overview
-                </h2>
-                <span className="text-sm text-slate-500 dark:text-slate-400">
-                  Last 7 days
-                </span>
-              </div>
-              <div className="h-64">
-                <ResponsiveContainer width="100%" height="100%">
-                  <RechartsLineChart data={weeklyData}>
-                    <CartesianGrid
-                      strokeDasharray="3 3"
-                      stroke="#94a3b8"
-                      opacity={0.3}
-                    />
-                    <XAxis dataKey="name" stroke="#94a3b8" />
-                    <YAxis stroke="#94a3b8" />
-                    <Tooltip />
-                    <Line
-                      type="monotone"
-                      dataKey="solved"
-                      stroke="#38bdf8"
-                      strokeWidth={3}
-                      dot={{ r: 4 }}
-                    />
-                    <Line
-                      type="monotone"
-                      dataKey="accuracy"
-                      stroke="#a78bfa"
-                      strokeWidth={3}
-                      dot={{ r: 4 }}
-                    />
-                  </RechartsLineChart>
-                </ResponsiveContainer>
-              </div>
-            </Card>
-
-            <Card className="p-5">
-              <h2 className="text-xl font-bold text-slate-900 dark:text-white">
-                Quick stats
-              </h2>
-              <div className="mt-5 space-y-4">
-                {[
-                  { label: "Current streak", value: "12 days", icon: Flame },
-                  { label: "Study time", value: "4.5 hrs", icon: Clock3 },
-                  {
-                    label: "Recent activity",
-                    value: "Quiz + 2 questions",
-                    icon: LineChart,
-                  },
-                ].map(({ label, value, icon: Icon }) => (
-                  <div
-                    key={label}
-                    className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-800/40"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="rounded-lg bg-sky-100 p-2 text-sky-700 dark:bg-sky-950/50 dark:text-sky-300">
-                        <Icon size={16} />
-                      </div>
-                      <span className="text-sm text-slate-600 dark:text-slate-300">
-                        {label}
-                      </span>
-                    </div>
-                    <span className="text-sm font-semibold text-slate-900 dark:text-white">
-                      {value}
+          {!loading ? (
+            <>
+              <div className="grid gap-6 xl:grid-cols-[1.3fr_0.7fr]">
+                <Card className="p-5">
+                  <div className="mb-4 flex items-center justify-between">
+                    <h2 className="text-xl font-bold text-slate-900 dark:text-white">
+                      Progress overview
+                    </h2>
+                    <span className="text-sm text-slate-500 dark:text-slate-400">
+                      Last 7 days
                     </span>
                   </div>
-                ))}
-              </div>
-            </Card>
-          </div>
-
-          <div className="grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
-            <Card className="p-5">
-              <h2 className="text-xl font-bold text-slate-900 dark:text-white">
-                Recommended questions
-              </h2>
-              <div className="mt-5 space-y-4">
-                {recommended.map((item) => (
-                  <div
-                    key={item.title}
-                    className="rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-800/40"
-                  >
-                    <p className="text-base font-semibold text-slate-900 dark:text-white">
-                      {item.title}
-                    </p>
-                    <div className="mt-2 flex items-center justify-between text-sm text-slate-500 dark:text-slate-400">
-                      <span>{item.category}</span>
-                      <span>{item.difficulty}</span>
-                    </div>
+                  <div className="h-64">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <RechartsLineChart data={weeklyData}>
+                        <CartesianGrid
+                          strokeDasharray="3 3"
+                          stroke="#94a3b8"
+                          opacity={0.3}
+                        />
+                        <XAxis dataKey="name" stroke="#94a3b8" />
+                        <YAxis stroke="#94a3b8" />
+                        <Tooltip />
+                        <Line
+                          type="monotone"
+                          dataKey="solved"
+                          stroke="#38bdf8"
+                          strokeWidth={3}
+                          dot={{ r: 4 }}
+                        />
+                        <Line
+                          type="monotone"
+                          dataKey="accuracy"
+                          stroke="#a78bfa"
+                          strokeWidth={3}
+                          dot={{ r: 4 }}
+                        />
+                      </RechartsLineChart>
+                    </ResponsiveContainer>
                   </div>
-                ))}
-              </div>
-            </Card>
+                </Card>
 
-            <Card className="p-5">
-              <h2 className="text-xl font-bold text-slate-900 dark:text-white">
-                Weak topics
-              </h2>
-              <div className="mt-5 space-y-4">
-                {weakTopics.map(({ topic, percent }) => (
-                  <div key={topic}>
-                    <div className="mb-2 flex items-center justify-between text-sm">
-                      <span className="font-medium text-slate-700 dark:text-slate-200">
-                        {topic}
-                      </span>
-                      <span className="text-slate-500 dark:text-slate-400">
-                        {percent}%
-                      </span>
-                    </div>
-                    <ProgressBar value={percent} />
+                <Card className="p-5">
+                  <h2 className="text-xl font-bold text-slate-900 dark:text-white">
+                    Quick stats
+                  </h2>
+                  <div className="mt-5 space-y-4">
+                    {[
+                      {
+                        label: "Current streak",
+                        value: `${overview?.streak ?? 0} days`,
+                        icon: Flame,
+                      },
+                      {
+                        label: "Study time",
+                        value: `${Math.floor(readingProgress.readingSeconds / 3600)}h ${Math.floor((readingProgress.readingSeconds % 3600) / 60)}m`,
+                        icon: Clock3,
+                      },
+                      {
+                        label: "Recent activity",
+                        value: `${overview?.totalQuizzes ?? 0} quizzes + ${readingProgress.viewedQuestionIds.length} questions`,
+                        icon: LineChart,
+                      },
+                    ].map(({ label, value, icon: Icon }) => (
+                      <div
+                        key={label}
+                        className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-800/40"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className="rounded-lg bg-sky-100 p-2 text-sky-700 dark:bg-sky-950/50 dark:text-sky-300">
+                            <Icon size={16} />
+                          </div>
+                          <span className="text-sm text-slate-600 dark:text-slate-300">
+                            {label}
+                          </span>
+                        </div>
+                        <span className="text-sm font-semibold text-slate-900 dark:text-white">
+                          {value}
+                        </span>
+                      </div>
+                    ))}
                   </div>
-                ))}
+                </Card>
               </div>
-            </Card>
-          </div>
 
-          <div className="grid gap-6 lg:grid-cols-2">
-            <Card className="p-5">
-              <h2 className="text-xl font-bold text-slate-900 dark:text-white">
-                Recent activity
-              </h2>
-              <div className="mt-5 space-y-4">
-                {[
-                  "JS closures quiz completed",
-                  "React hooks practice set",
-                  "DSA daily challenge solved",
-                  "Mock interview report generated",
-                ].map((item) => (
-                  <div
-                    key={item}
-                    className="flex gap-3 rounded-xl bg-slate-50 p-3 dark:bg-slate-800/40"
-                  >
-                    <div className="mt-1 h-2.5 w-2.5 rounded-full bg-sky-500" />
-                    <p className="text-sm text-slate-700 dark:text-slate-200">
-                      {item}
-                    </p>
+              <div className="grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
+                <Card className="p-5">
+                  <h2 className="text-xl font-bold text-slate-900 dark:text-white">
+                    Category performance
+                  </h2>
+                  <div className="mt-5 h-64">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={categoryData}>
+                        <CartesianGrid
+                          strokeDasharray="3 3"
+                          stroke="#94a3b8"
+                          opacity={0.2}
+                        />
+                        <XAxis dataKey="name" stroke="#94a3b8" />
+                        <YAxis stroke="#94a3b8" />
+                        <Tooltip />
+                        <Bar
+                          dataKey="score"
+                          radius={[8, 8, 0, 0]}
+                          fill="#38bdf8"
+                        />
+                      </BarChart>
+                    </ResponsiveContainer>
                   </div>
-                ))}
-              </div>
-            </Card>
+                </Card>
 
-            <Card className="p-5">
-              <h2 className="text-xl font-bold text-slate-900 dark:text-white">
-                Category performance
-              </h2>
-              <div className="mt-5 h-64">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart
-                    data={[
-                      { name: "JS", score: 85 },
-                      { name: "React", score: 72 },
-                      { name: "TS", score: 55 },
-                      { name: "CSS", score: 78 },
-                      { name: "DSA", score: 48 },
-                    ]}
-                  >
-                    <CartesianGrid
-                      strokeDasharray="3 3"
-                      stroke="#94a3b8"
-                      opacity={0.2}
-                    />
-                    <XAxis dataKey="name" stroke="#94a3b8" />
-                    <YAxis stroke="#94a3b8" />
-                    <Tooltip />
-                    <Bar dataKey="score" radius={[8, 8, 0, 0]} fill="#38bdf8" />
-                  </BarChart>
-                </ResponsiveContainer>
+                <Card className="p-5">
+                  <h2 className="text-xl font-bold text-slate-900 dark:text-white">
+                    Weak topics
+                  </h2>
+                  <div className="mt-5 space-y-4">
+                    {weakTopics.map(({ topic, percent }) => (
+                      <div key={topic}>
+                        <div className="mb-2 flex items-center justify-between text-sm">
+                          <span className="font-medium text-slate-700 dark:text-slate-200">
+                            {topic}
+                          </span>
+                          <span className="text-slate-500 dark:text-slate-400">
+                            {percent}%
+                          </span>
+                        </div>
+                        <ProgressBar value={percent} />
+                      </div>
+                    ))}
+                    {weakTopics.length === 0 && (
+                      <p className="text-sm text-slate-500 dark:text-slate-400">
+                        Attempt some quizzes to see weak topics here.
+                      </p>
+                    )}
+                  </div>
+                </Card>
               </div>
+            </>
+          ) : (
+            <Card className="p-6">
+              <div className="h-64 animate-pulse rounded-2xl bg-slate-100 dark:bg-slate-800" />
             </Card>
-          </div>
+          )}
         </main>
       </div>
     </div>

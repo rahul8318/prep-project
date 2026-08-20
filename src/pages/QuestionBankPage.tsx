@@ -1,6 +1,7 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Bookmark,
+  CheckCircle2,
   ChevronLeft,
   ChevronRight,
   Filter,
@@ -10,24 +11,26 @@ import {
 } from "lucide-react";
 import {
   Button,
+  Card,
   CategoryBadge,
   DifficultyBadge,
   EmptyState,
   SearchBar,
 } from "../components/ui";
-import { allQuestions, categories } from "../data/questions";
+import {
+  allQuestions as localQuestions,
+  categories as questionCategories,
+} from "../data/questions";
+import {
+  addReadingSeconds,
+  markQuestionViewed,
+} from "../services/studyProgress";
 import type { Question } from "../types";
 
 export function QuestionBankPage({
   user,
-  onLogout,
-  theme,
-  toggleTheme,
 }: {
   user: any;
-  onLogout: () => void;
-  theme: "light" | "dark";
-  toggleTheme: () => void;
 }) {
   const [search, setSearch] = useState("");
   const [category, setCategory] = useState("All");
@@ -35,23 +38,46 @@ export function QuestionBankPage({
   const [bookmarked, setBookmarked] = useState<Record<string, boolean>>({});
   const [solved, setSolved] = useState<Record<string, boolean>>({});
   const [index, setIndex] = useState(0);
+  const [questions] = useState<Question[]>(localQuestions);
+
+  const categories = useMemo(() => {
+    const loadedCategories = questions.map((question) => question.category);
+    return [
+      "All",
+      ...Array.from(new Set([...questionCategories, ...loadedCategories])),
+    ];
+  }, [questions]);
 
   const filtered = useMemo(() => {
-    return allQuestions.filter((question) => {
+    const items = Array.isArray(questions) ? questions : [];
+    return items.filter((question) => {
       const matchesCategory =
         category === "All" || question.category === category;
       const matchesDifficulty =
         difficulty === "All" || question.difficulty === difficulty;
       const matchesSearch =
         search.trim() === "" ||
-        `${question.question} ${question.topic} ${question.tags.join(" ")}`
+        `${question.question} ${question.topic} ${(question.tags || []).join(" ")}`
           .toLowerCase()
           .includes(search.toLowerCase());
       return matchesCategory && matchesDifficulty && matchesSearch;
     });
-  }, [category, difficulty, search]);
+  }, [category, difficulty, search, questions]);
 
   const current = filtered[index] ?? null;
+  const currentId = current?.id ?? current?._id ?? "";
+
+  useEffect(() => {
+    const userId = user?.id;
+    if (!userId || !currentId) return;
+
+    markQuestionViewed(userId, currentId);
+    const timer = window.setInterval(() => {
+      addReadingSeconds(userId, 1);
+    }, 1000);
+
+    return () => window.clearInterval(timer);
+  }, [currentId, user?.id]);
 
   const toggleBookmark = (id: string) =>
     setBookmarked((prev) => ({ ...prev, [id]: !prev[id] }));
@@ -63,26 +89,19 @@ export function QuestionBankPage({
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="mb-6 flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900 md:flex-row md:items-center md:justify-between">
           <div>
-            <p className="text-sm text-slate-500 dark:text-slate-400">
-              InterviewHub
-            </p>
+            <div className="flex items-center gap-2">
+              <img
+                src="/logo.svg"
+                alt="InterviewHub"
+                className="h-6 w-6 rounded-lg object-cover"
+              />
+              <p className="text-sm text-slate-500 dark:text-slate-400">
+                InterviewHub
+              </p>
+            </div>
             <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
               Question Bank
             </h1>
-          </div>
-          <div className="flex flex-wrap items-center gap-3">
-            <button
-              onClick={toggleTheme}
-              className="rounded-full border border-slate-200 px-3 py-2 text-xs dark:border-slate-700"
-            >
-              {theme === "dark" ? "Light" : "Dark"}
-            </button>
-            <button
-              onClick={onLogout}
-              className="rounded-xl bg-slate-900 px-3 py-2 text-sm font-medium text-white dark:bg-slate-100 dark:text-slate-900"
-            >
-              Logout
-            </button>
           </div>
         </div>
 
@@ -149,12 +168,12 @@ export function QuestionBankPage({
                 ))}
               </div>
 
-              <div className="mt-6 rounded-2xl bg-slate-50 p-4 dark:bg-slate-800/50">
-                <p className="mb-2 text-sm font-semibold uppercase tracking-[0.12em] text-slate-500 dark:text-slate-400">
-                  Answer
-                </p>
-                <p className="text-base leading-7 text-slate-700 dark:text-slate-200">
-                  {current.answer}
+              <div className="mt-6 rounded-2xl border-l-4 border-sky-500 bg-sky-50 p-5 dark:bg-sky-950/40">
+                <div className="mb-2 flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.12em] text-sky-700 dark:text-sky-300">
+                  <CheckCircle2 size={16} /> Answer
+                </div>
+                <p className="text-base leading-7 font-medium text-sky-900 dark:text-sky-100">
+                  {current.answer || current.correctAnswer}
                 </p>
               </div>
 
@@ -178,15 +197,15 @@ export function QuestionBankPage({
               <div className="mt-6 flex flex-wrap gap-3">
                 <Button
                   variant="secondary"
-                  onClick={() => toggleSolved(current.id)}
+                  onClick={() => toggleSolved(currentId)}
                 >
-                  {solved[current.id] ? "Solved" : "Mark as solved"}
+                  {solved[currentId] ? "Solved" : "Mark as solved"}
                 </Button>
                 <Button
                   variant="secondary"
-                  onClick={() => toggleBookmark(current.id)}
+                  onClick={() => toggleBookmark(currentId)}
                 >
-                  {bookmarked[current.id] ? "Bookmarked" : "Bookmark"}
+                  {bookmarked[currentId] ? "Bookmarked" : "Bookmark"}
                 </Button>
                 <Button variant="secondary">Show answer</Button>
               </div>

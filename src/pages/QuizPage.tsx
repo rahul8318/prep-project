@@ -1,103 +1,368 @@
-import { useMemo, useState } from "react";
-import { CheckCircle2, Clock3, XCircle } from "lucide-react";
+import { useEffect, useState, useCallback } from "react";
+import { CheckCircle2, Clock3, XCircle, ArrowLeft, ArrowRight } from "lucide-react";
 import { Button, Card, ProgressBar } from "../components/ui";
-import { allQuestions } from "../data/questions";
-import type { QuizResult } from "../types";
+import { quizApi } from "../services/quizApi";
 
-const choices = ["Option A", "Option B", "Option C", "Option D"];
+const CATEGORIES = [
+  "JavaScript",
+  "React",
+  "TypeScript",
+  "CSS",
+  "HTML",
+  "DSA",
+  "HR",
+];
+const DIFFICULTIES = ["Beginner", "Intermediate", "Advanced"];
+const QUESTION_COUNTS = [5, 10, 15];
+const DEFAULT_TIME = 180;
+
+type QuizQuestion = {
+  id: string;
+  question: string;
+  options: string[];
+  category: string;
+  difficulty: string;
+  topic: string;
+};
+
+type QuizResultData = {
+  score: number;
+  totalQuestions: number;
+  correctAnswers: number;
+  incorrectAnswers: number;
+  accuracy: number;
+  timeTaken: number;
+  result: {
+    questions: Array<{
+      questionId: string;
+      question: string;
+      options: string[];
+      correctAnswer: string;
+      explanation: string;
+      userAnswer: string;
+    }>;
+  };
+};
 
 export function QuizPage({
   user,
-  onLogout,
-  theme,
-  toggleTheme,
 }: {
   user: any;
-  onLogout: () => void;
-  theme: "light" | "dark";
-  toggleTheme: () => void;
 }) {
   const [category, setCategory] = useState("JavaScript");
   const [difficulty, setDifficulty] = useState("Intermediate");
   const [questionCount, setQuestionCount] = useState(5);
-  const [questions, setQuestions] = useState<any[]>([]);
+  const [questions, setQuestions] = useState<QuizQuestion[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [selectedAnswers, setSelectedAnswers] = useState<
-    Record<string, string>
-  >({});
+  const [selectedAnswers, setSelectedAnswers] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(180);
-
-  const filteredQuestions = useMemo(
-    () =>
-      allQuestions
-        .filter((q) => q.category === category && q.difficulty === difficulty)
-        .slice(0, questionCount),
-    [category, difficulty, questionCount],
-  );
-
-  const startQuiz = () => {
-    const selected = filteredQuestions.slice(
-      0,
-      Math.min(questionCount, filteredQuestions.length),
-    );
-    setQuestions(
-      selected.map((q, idx) => ({
-        ...q,
-        options: [q.answer, "Option B", "Option C", "Option D"],
-        id: `${q.id}-${idx}`,
-      })),
-    );
-    setCurrentIndex(0);
-    setSubmitted(false);
-    setSelectedAnswers({});
-    setTimeLeft(180);
-  };
+  const [timeLeft, setTimeLeft] = useState(DEFAULT_TIME);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [quizResult, setQuizResult] = useState<QuizResultData | null>(null);
+  const [sessionId, setSessionId] = useState<string | null>(null);
 
   const currentQuestion = questions[currentIndex];
   const progress = questions.length
     ? ((currentIndex + 1) / questions.length) * 100
     : 0;
 
-  const submitQuiz = () => {
-    const score = questions.reduce((acc, question) => {
-      const selected = selectedAnswers[question.id];
-      return acc + (selected === question.answer ? 1 : 0);
-    }, 0);
+  useEffect(() => {
+    if (!submitted && questions.length > 0 && timeLeft > 0) {
+      const timer = setInterval(() => {
+        setTimeLeft((prev) => {
+          if (prev <= 1) {
+            clearInterval(timer);
+            void handleSubmitQuiz();
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+      return () => clearInterval(timer);
+    }
+  }, [submitted, questions.length, timeLeft]);
 
-    const result: QuizResult = {
-      id: `quiz-${Date.now()}`,
-      category,
-      difficulty,
-      score,
-      total: questions.length,
-      correct: score,
-      wrong: questions.length - score,
-      accuracy: Math.round((score / questions.length) * 100),
-      timeTaken: 180 - timeLeft,
-      createdAt: new Date().toISOString(),
-    };
+  const startQuiz = async () => {
+    if (!user) {
+      setError("Please log in to start a quiz.");
+      return;
+    }
+    setLoading(true);
+    setError("");
+    try {
+      const res = await quizApi.startQuiz({
+        category,
+        difficulty,
+        count: questionCount,
+      });
 
-    localStorage.setItem(
-      "interviewhub-quiz-results",
-      JSON.stringify([
-        ...JSON.parse(
-          localStorage.getItem("interviewhub-quiz-results") || "[]",
-        ),
-        result,
-      ]),
-    );
-    setSubmitted(true);
+      if (res.success && res.data) {
+        setQuestions(res.data.questions);
+        setSessionId(res.data.sessionId);
+        setCurrentIndex(0);
+        setSubmitted(false);
+        setSelectedAnswers({});
+        setTimeLeft(DEFAULT_TIME);
+        setQuizResult(null);
+      } else {
+        setError("Failed to start quiz. Please try again.");
+      }
+    } catch {
+      setError("Failed to start quiz. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const answer = (option: string) =>
-    setSelectedAnswers((prev) => ({ ...prev, [currentQuestion.id]: option }));
+  const handleSubmitQuiz = useCallback(async () => {
+    if (!questions.length || !sessionId) return;
+    setLoading(true);
+    setError("");
+    try {
+      const answers: Record<string, string> = {};
+      for (const q of questions) {
+        answers[q.id] = selectedAnswers[q.id] || "";
+      }
 
-  const score = questions.reduce(
-    (acc, question) =>
-      acc + (selectedAnswers[question.id] === question.answer ? 1 : 0),
-    0,
-  );
+      const res = await quizApi.submitQuiz({
+        sessionId,
+        answers,
+        timeTaken: DEFAULT_TIME - timeLeft,
+      });
+
+      if (res.success && res.data) {
+        setQuizResult({
+          ...res.data,
+          totalQuestions: res.data.result.questions.length,
+        });
+        setSubmitted(true);
+      } else {
+        setError("Failed to submit quiz. Please try again.");
+      }
+    } catch {
+      setError("Failed to submit quiz. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  }, [questions, sessionId, selectedAnswers, timeLeft]);
+
+  const confirmSubmit = () => {
+    const unanswered = questions.filter(
+      (q) => !selectedAnswers[q.id]
+    ).length;
+    const msg =
+      unanswered > 0
+        ? `You have ${unanswered} unanswered question(s). Submit anyway?`
+        : "Submit your quiz?";
+    if (window.confirm(msg)) {
+      void handleSubmitQuiz();
+    }
+  };
+
+  const resetQuiz = () => {
+    setQuestions([]);
+    setCurrentIndex(0);
+    setSelectedAnswers({});
+    setSubmitted(false);
+    setTimeLeft(DEFAULT_TIME);
+    setQuizResult(null);
+    setSessionId(null);
+    setError("");
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
+        <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
+          <Card className="p-6">
+            <div className="h-64 animate-pulse rounded-2xl bg-slate-100 dark:bg-slate-800" />
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
+        <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
+          <Card className="p-6 text-center text-sm text-rose-600 dark:text-rose-400">
+            {error}
+            <Button className="mt-4" onClick={() => setError("")}>
+              Dismiss
+            </Button>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  if (!questions.length) {
+    return (
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
+        <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
+          <div className="mb-6 flex items-center justify-between rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
+            <div>
+              <p className="text-sm text-slate-500 dark:text-slate-400">
+                Quiz mode
+              </p>
+              <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+                Technical Quiz
+              </h1>
+            </div>
+          </div>
+
+          <Card className="p-6">
+            <div className="grid gap-5 md:grid-cols-4">
+              <select
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm dark:border-slate-700 dark:bg-slate-950"
+              >
+                {CATEGORIES.map((item) => (
+                  <option key={item} value={item}>
+                    {item}
+                  </option>
+                ))}
+              </select>
+              <select
+                value={difficulty}
+                onChange={(e) => setDifficulty(e.target.value)}
+                className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm dark:border-slate-700 dark:bg-slate-950"
+              >
+                {DIFFICULTIES.map((item) => (
+                  <option key={item} value={item}>
+                    {item}
+                  </option>
+                ))}
+              </select>
+              <select
+                value={questionCount}
+                onChange={(e) => setQuestionCount(Number(e.target.value))}
+                className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm dark:border-slate-700 dark:bg-slate-950"
+              >
+                {QUESTION_COUNTS.map((item) => (
+                  <option key={item} value={item}>
+                    {item} questions
+                  </option>
+                ))}
+              </select>
+              <Button onClick={startQuiz}>Start quiz</Button>
+            </div>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  if (submitted && quizResult) {
+    const correctSet = new Set(
+      quizResult.result.questions
+        .filter((q) => q.userAnswer === q.correctAnswer)
+        .map((q) => q.questionId)
+    );
+
+    return (
+      <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
+        <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
+          <div className="mb-6 flex items-center justify-between rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
+            <div>
+              <p className="text-sm text-slate-500 dark:text-slate-400">
+                Quiz mode
+              </p>
+              <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+                Quiz Result
+              </h1>
+            </div>
+          </div>
+
+          <Card className="p-6">
+            <div className="mb-6 flex items-center gap-3 text-2xl font-bold text-slate-900 dark:text-white">
+              <CheckCircle2 className="text-emerald-500" /> Quiz completed
+            </div>
+            <div className="grid gap-4 md:grid-cols-4">
+              <div className="rounded-2xl bg-slate-50 p-4 dark:bg-slate-800/40">
+                <p className="text-sm text-slate-500 dark:text-slate-400">
+                  Final score
+                </p>
+                <p className="mt-2 text-3xl font-bold">
+                  {quizResult.score}/{quizResult.totalQuestions}
+                </p>
+              </div>
+              <div className="rounded-2xl bg-slate-50 p-4 dark:bg-slate-800/40">
+                <p className="text-sm text-slate-500 dark:text-slate-400">
+                  Accuracy
+                </p>
+                <p className="mt-2 text-3xl font-bold">
+                  {quizResult.accuracy.toFixed(1)}%
+                </p>
+              </div>
+              <div className="rounded-2xl bg-slate-50 p-4 dark:bg-slate-800/40">
+                <p className="text-sm text-slate-500 dark:text-slate-400">
+                  Correct
+                </p>
+                <p className="mt-2 text-3xl font-bold text-emerald-600">
+                  {quizResult.correctAnswers}
+                </p>
+              </div>
+              <div className="rounded-2xl bg-slate-50 p-4 dark:bg-slate-800/40">
+                <p className="text-sm text-slate-500 dark:text-slate-400">
+                  Wrong
+                </p>
+                <p className="mt-2 text-3xl font-bold text-rose-600">
+                  {quizResult.incorrectAnswers}
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-8 space-y-4">
+              {quizResult.result.questions.map((q, idx) => {
+                const isCorrect = correctSet.has(q.questionId);
+                return (
+                  <div
+                    key={q.questionId}
+                    className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900"
+                  >
+                    <p className="font-semibold text-slate-900 dark:text-white">
+                      {idx + 1}. {q.question}
+                    </p>
+                    <div className="mt-3 space-y-1">
+                      {q.options.map((opt) => {
+                        const isSelected = q.userAnswer === opt;
+                        const isRight = q.correctAnswer === opt;
+                        let color = "text-slate-600 dark:text-slate-300";
+                        if (isRight) color = "text-emerald-600 dark:text-emerald-400 font-semibold";
+                        if (isSelected && !isRight) color = "text-rose-600 dark:text-rose-400";
+                        return (
+                          <div key={opt} className={`text-sm ${color}`}>
+                            {isSelected && !isRight && <XCircle size={14} className="mr-1 inline" />}
+                            {isRight && <CheckCircle2 size={14} className="mr-1 inline" />}
+                            {opt}
+                          </div>
+                        );
+                      })}
+                    </div>
+                    {!isCorrect && q.explanation && (
+                      <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+                        Explanation: {q.explanation}
+                      </p>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="mt-8 flex gap-3">
+              <Button onClick={resetQuiz}>Start New Quiz</Button>
+            </div>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  if (!currentQuestion) return null;
 
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
@@ -111,177 +376,68 @@ export function QuizPage({
               Technical Quiz
             </h1>
           </div>
-          <div className="flex items-center gap-3">
-            <button
-              onClick={toggleTheme}
-              className="rounded-full border border-slate-200 px-3 py-2 text-xs dark:border-slate-700"
-            >
-              {theme === "dark" ? "Light" : "Dark"}
-            </button>
-            <button
-              onClick={onLogout}
-              className="rounded-x1 bg-slate-900 px-3 py-2 text-sm font-medium text-white dark:bg-slate-100 dark:text-slate-900"
-            >
-              Logout
-            </button>
+          <div className="flex items-center gap-3 text-sm text-slate-500 dark:text-slate-400">
+            <Clock3 size={18} /> {Math.floor(timeLeft / 60)}:
+            {String(timeLeft % 60).padStart(2, "0")}
           </div>
         </div>
 
-        {!questions.length ? (
-          <Card className="p-6">
-            <div className="grid gap-5 md:grid-cols-4">
-              <select
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm dark:border-slate-700 dark:bg-slate-950"
+        <Card className="p-6">
+          <div className="mb-4 flex items-center justify-between gap-4">
+            <div className="text-sm text-slate-500 dark:text-slate-400">
+              Question {currentIndex + 1} / {questions.length}
+            </div>
+            <div className="text-sm text-slate-500 dark:text-slate-400">
+              {currentQuestion.category} • {currentQuestion.difficulty}
+            </div>
+          </div>
+          <ProgressBar value={progress} className="mb-6" />
+          <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
+            {currentQuestion.question}
+          </h2>
+          <div className="mt-6 space-y-3">
+            {currentQuestion.options.map((option: string) => (
+              <button
+                key={option}
+                onClick={() =>
+                  setSelectedAnswers((prev) => ({
+                    ...prev,
+                    [currentQuestion.id]: option,
+                  }))
+                }
+                className={`flex w-full items-center justify-between rounded-2xl border px-4 py-3 text-left text-sm font-medium transition ${
+                  selectedAnswers[currentQuestion.id] === option
+                    ? "border-sky-500 bg-sky-50 text-sky-700 dark:border-sky-400 dark:bg-sky-950/30 dark:text-sky-200"
+                    : "border-slate-200 bg-white text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+                }`}
               >
-                {["JavaScript", "React", "TypeScript", "CSS", "DSA", "HR"].map(
-                  (item) => (
-                    <option key={item}>{item}</option>
-                  ),
+                <span>{option}</span>
+                {selectedAnswers[currentQuestion.id] === option && (
+                  <CheckCircle2 size={18} />
                 )}
-              </select>
-              <select
-                value={difficulty}
-                onChange={(e) => setDifficulty(e.target.value)}
-                className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm dark:border-slate-700 dark:bg-slate-950"
-              >
-                {["Beginner", "Intermediate", "Advanced"].map((item) => (
-                  <option key={item}>{item}</option>
-                ))}
-              </select>
-              <select
-                value={questionCount}
-                onChange={(e) => setQuestionCount(Number(e.target.value))}
-                className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm dark:border-slate-700 dark:bg-slate-950"
-              >
-                {[5, 10, 15].map((item) => (
-                  <option key={item}>{item}</option>
-                ))}
-              </select>
-              <Button onClick={startQuiz}>Start quiz</Button>
-            </div>
-          </Card>
-        ) : submitted ? (
-          <Card className="p-6">
-            <div className="mb-6 flex items-center gap-3 text-2xl font-bold text-slate-900 dark:text-white">
-              <CheckCircle2 className="text-emerald-500" /> Quiz completed
-            </div>
-            <div className="grid gap-4 md:grid-cols-4">
-              <div className="rounded-2xl bg-slate-50 p-4 dark:bg-slate-800/40">
-                <p className="text-sm text-slate-500 dark:text-slate-400">
-                  Final score
-                </p>
-                <p className="mt-2 text-3xl font-bold">
-                  {score}/{questions.length}
-                </p>
-              </div>
-              <div className="rounded-2xl bg-slate-50 p-4 dark:bg-slate-800/40">
-                <p className="text-sm text-slate-500 dark:text-slate-400">
-                  Accuracy
-                </p>
-                <p className="mt-2 text-3xl font-bold">
-                  {Math.round((score / questions.length) * 100)}%
-                </p>
-              </div>
-              <div className="rounded-2xl bg-slate-50 p-4 dark:bg-slate-800/40">
-                <p className="text-sm text-slate-500 dark:text-slate-400">
-                  Correct
-                </p>
-                <p className="mt-2 text-3xl font-bold text-emerald-600">
-                  {score}
-                </p>
-              </div>
-              <div className="rounded-2xl bg-slate-50 p-4 dark:bg-slate-800/40">
-                <p className="text-sm text-slate-500 dark:text-slate-400">
-                  Wrong
-                </p>
-                <p className="mt-2 text-3xl font-bold text-rose-600">
-                  {questions.length - score}
-                </p>
-              </div>
-            </div>
+              </button>
+            ))}
+          </div>
 
-            <div className="mt-8 space-y-4">
-              {questions.map((question, idx) => {
-                const selected = selectedAnswers[question.id];
-                const isCorrect = selected === question.answer;
-                return (
-                  <div
-                    key={question.id}
-                    className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900"
-                  >
-                    <p className="font-semibold text-slate-900 dark:text-white">
-                      {idx + 1}. {question.question}
-                    </p>
-                    <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-                      Your answer:{" "}
-                      <span
-                        className={
-                          isCorrect ? "text-emerald-600" : "text-rose-600"
-                        }
-                      >
-                        {selected || "No answer"}
-                      </span>
-                    </p>
-                    <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-                      Correct answer: {question.answer}
-                    </p>
-                    <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-                      Explanation: {question.explanation}
-                    </p>
-                  </div>
-                );
-              })}
-            </div>
-          </Card>
-        ) : currentQuestion ? (
-          <Card className="p-6">
-            <div className="mb-4 flex items-center justify-between gap-4">
-              <div className="flex items-center gap-3 text-sm text-slate-500 dark:text-slate-400">
-                <Clock3 size={18} /> {timeLeft}s left
-              </div>
-              <div className="text-sm text-slate-500 dark:text-slate-400">
-                Question {currentIndex + 1} / {questions.length}
-              </div>
-            </div>
-            <ProgressBar value={progress} className="mb-6" />
-            <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
-              {currentQuestion.question}
-            </h2>
-            <div className="mt-6 space-y-3">
-              {currentQuestion.options.map((option: string) => (
-                <button
-                  key={option}
-                  onClick={() => answer(option)}
-                  className={`flex w-full items-center justify-between rounded-2xl border px-4 py-3 text-left text-sm font-medium transition ${selectedAnswers[currentQuestion.id] === option ? "border-sky-500 bg-sky-50 text-sky-700 dark:border-sky-400 dark:bg-sky-950/30 dark:text-sky-200" : "border-slate-200 bg-white text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"}`}
-                >
-                  <span>{option}</span>
-                  {selectedAnswers[currentQuestion.id] === option ? (
-                    <CheckCircle2 size={18} />
-                  ) : null}
-                </button>
-              ))}
-            </div>
-
-            <div className="mt-8 flex items-center justify-between gap-3">
-              <Button
-                variant="secondary"
-                onClick={() => setCurrentIndex((prev) => Math.max(0, prev - 1))}
-                disabled={currentIndex === 0}
-              >
-                Previous
+          <div className="mt-8 flex items-center justify-between gap-3">
+            <Button
+              variant="secondary"
+              onClick={() =>
+                setCurrentIndex((prev) => Math.max(0, prev - 1))
+              }
+              disabled={currentIndex === 0}
+            >
+              <ArrowLeft size={16} /> Previous
+            </Button>
+            {currentIndex < questions.length - 1 ? (
+              <Button onClick={() => setCurrentIndex((prev) => prev + 1)}>
+                Next <ArrowRight size={16} />
               </Button>
-              {currentIndex < questions.length - 1 ? (
-                <Button onClick={() => setCurrentIndex((prev) => prev + 1)}>
-                  Next
-                </Button>
-              ) : (
-                <Button onClick={submitQuiz}>Submit quiz</Button>
-              )}
-            </div>
-          </Card>
-        ) : null}
+            ) : (
+              <Button onClick={confirmSubmit}>Submit quiz</Button>
+            )}
+          </div>
+        </Card>
       </div>
     </div>
   );
