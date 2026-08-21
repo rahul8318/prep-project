@@ -9,6 +9,8 @@ import router from "./routes";
 import { errorMiddleware } from "./middleware/error";
 import { rateLimitMiddleware } from "./middleware/rateLimit";
 
+const isVercel = process.env.VERCEL === "1";
+
 const app: Application = express();
 
 app.use(helmet());
@@ -24,7 +26,7 @@ app.use(express.urlencoded({ extended: true, limit: "10kb" }));
 app.use(cookieParser());
 app.use(rateLimitMiddleware(100, 60000));
 
-app.use("/api", router);
+app.use(isVercel ? "/" : "/api", router);
 
 app.use((req: Request, res: Response) => {
   res.status(404).json({
