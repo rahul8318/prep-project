@@ -173,10 +173,10 @@ export function QuizPage({
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
+      <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)] transition-colors duration-200">
         <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
           <Card className="p-6">
-            <div className="h-64 animate-pulse rounded-2xl bg-slate-100 dark:bg-slate-800" />
+            <div className="h-64 animate-pulse rounded-2xl bg-[var(--surface-elevated)]" />
           </Card>
         </div>
       </div>
@@ -185,7 +185,7 @@ export function QuizPage({
 
   if (error) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
+      <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)] transition-colors duration-200">
         <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
           <Card className="p-6 text-center text-sm text-rose-600 dark:text-rose-400">
             {error}
@@ -200,14 +200,14 @@ export function QuizPage({
 
   if (!questions.length) {
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
+      <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)] transition-colors duration-200">
         <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
-          <div className="mb-6 flex items-center justify-between rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
+          <div className="mb-6 flex items-center justify-between rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-4">
             <div>
-              <p className="text-sm text-slate-500 dark:text-slate-400">
+              <p className="text-sm text-[var(--muted)]">
                 Quiz mode
               </p>
-              <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+              <h1 className="text-2xl font-bold text-[var(--foreground)]">
                 Technical Quiz
               </h1>
             </div>
@@ -218,7 +218,7 @@ export function QuizPage({
               <select
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
-                className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm dark:border-slate-700 dark:bg-slate-950"
+                className="rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 py-2.5 text-sm text-[var(--foreground)]"
               >
                 {CATEGORIES.map((item) => (
                   <option key={item} value={item}>
@@ -229,7 +229,7 @@ export function QuizPage({
               <select
                 value={difficulty}
                 onChange={(e) => setDifficulty(e.target.value)}
-                className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm dark:border-slate-700 dark:bg-slate-950"
+                className="rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 py-2.5 text-sm text-[var(--foreground)]"
               >
                 {DIFFICULTIES.map((item) => (
                   <option key={item} value={item}>
@@ -240,7 +240,7 @@ export function QuizPage({
               <select
                 value={questionCount}
                 onChange={(e) => setQuestionCount(Number(e.target.value))}
-                className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm dark:border-slate-700 dark:bg-slate-950"
+                className="rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 py-2.5 text-sm text-[var(--foreground)]"
               >
                 {QUESTION_COUNTS.map((item) => (
                   <option key={item} value={item}>
@@ -264,53 +264,53 @@ export function QuizPage({
     );
 
     return (
-      <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
+      <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)] transition-colors duration-200">
         <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
-          <div className="mb-6 flex items-center justify-between rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
+          <div className="mb-6 flex items-center justify-between rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-4">
             <div>
-              <p className="text-sm text-slate-500 dark:text-slate-400">
+              <p className="text-sm text-[var(--muted)]">
                 Quiz mode
               </p>
-              <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+              <h1 className="text-2xl font-bold text-[var(--foreground)]">
                 Quiz Result
               </h1>
             </div>
           </div>
 
           <Card className="p-6">
-            <div className="mb-6 flex items-center gap-3 text-2xl font-bold text-slate-900 dark:text-white">
-              <CheckCircle2 className="text-emerald-500" /> Quiz completed
+            <div className="mb-6 flex items-center gap-3 text-2xl font-bold text-[var(--foreground)]">
+              <CheckCircle2 className="text-[var(--brand-orange)]" /> Quiz completed
             </div>
             <div className="grid gap-4 md:grid-cols-4">
-              <div className="rounded-2xl bg-slate-50 p-4 dark:bg-slate-800/40">
-                <p className="text-sm text-slate-500 dark:text-slate-400">
+              <div className="rounded-2xl bg-[var(--surface-elevated)] p-4">
+                <p className="text-sm text-[var(--muted)]">
                   Final score
                 </p>
-                <p className="mt-2 text-3xl font-bold">
+                <p className="mt-2 text-3xl font-bold text-[var(--brand-orange)]">
                   {quizResult.score}/{quizResult.totalQuestions}
                 </p>
               </div>
-              <div className="rounded-2xl bg-slate-50 p-4 dark:bg-slate-800/40">
-                <p className="text-sm text-slate-500 dark:text-slate-400">
+              <div className="rounded-2xl bg-[var(--surface-elevated)] p-4">
+                <p className="text-sm text-[var(--muted)]">
                   Accuracy
                 </p>
-                <p className="mt-2 text-3xl font-bold">
+                <p className="mt-2 text-3xl font-bold text-[var(--foreground)]">
                   {quizResult.accuracy.toFixed(1)}%
                 </p>
               </div>
-              <div className="rounded-2xl bg-slate-50 p-4 dark:bg-slate-800/40">
-                <p className="text-sm text-slate-500 dark:text-slate-400">
+              <div className="rounded-2xl bg-[var(--surface-elevated)] p-4">
+                <p className="text-sm text-[var(--muted)]">
                   Correct
                 </p>
-                <p className="mt-2 text-3xl font-bold text-emerald-600">
+                <p className="mt-2 text-3xl font-bold text-[var(--brand-orange)]">
                   {quizResult.correctAnswers}
                 </p>
               </div>
-              <div className="rounded-2xl bg-slate-50 p-4 dark:bg-slate-800/40">
-                <p className="text-sm text-slate-500 dark:text-slate-400">
+              <div className="rounded-2xl bg-[var(--surface-elevated)] p-4">
+                <p className="text-sm text-[var(--muted)]">
                   Wrong
                 </p>
-                <p className="mt-2 text-3xl font-bold text-rose-600">
+                <p className="mt-2 text-3xl font-bold text-rose-600 dark:text-rose-400">
                   {quizResult.incorrectAnswers}
                 </p>
               </div>
@@ -320,19 +320,16 @@ export function QuizPage({
               {quizResult.result.questions.map((q, idx) => {
                 const isCorrect = correctSet.has(q.questionId);
                 return (
-                  <div
-                    key={q.questionId}
-                    className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900"
-                  >
-                    <p className="font-semibold text-slate-900 dark:text-white">
+                  <Card key={q.questionId} className="p-4 transition-all duration-200 hover:shadow-[var(--shadow-elevated)]">
+                    <p className="font-semibold text-[var(--foreground)]">
                       {idx + 1}. {q.question}
                     </p>
                     <div className="mt-3 space-y-1">
                       {q.options.map((opt) => {
                         const isSelected = q.userAnswer === opt;
                         const isRight = q.correctAnswer === opt;
-                        let color = "text-slate-600 dark:text-slate-300";
-                        if (isRight) color = "text-emerald-600 dark:text-emerald-400 font-semibold";
+                        let color = "text-[var(--foreground-secondary)]";
+                        if (isRight) color = "text-[var(--brand-orange)] font-semibold";
                         if (isSelected && !isRight) color = "text-rose-600 dark:text-rose-400";
                         return (
                           <div key={opt} className={`text-sm ${color}`}>
@@ -344,11 +341,11 @@ export function QuizPage({
                       })}
                     </div>
                     {!isCorrect && q.explanation && (
-                      <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+                      <p className="mt-2 text-xs text-[var(--muted)]">
                         Explanation: {q.explanation}
                       </p>
                     )}
-                  </div>
+                  </Card>
                 );
               })}
             </div>
@@ -365,18 +362,18 @@ export function QuizPage({
   if (!currentQuestion) return null;
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
+    <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)] transition-colors duration-200">
       <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
-        <div className="mb-6 flex items-center justify-between rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
+        <div className="mb-6 flex items-center justify-between rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-4">
           <div>
-            <p className="text-sm text-slate-500 dark:text-slate-400">
+            <p className="text-sm text-[var(--muted)]">
               Quiz mode
             </p>
-            <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+            <h1 className="text-2xl font-bold text-[var(--foreground)]">
               Technical Quiz
             </h1>
           </div>
-          <div className="flex items-center gap-3 text-sm text-slate-500 dark:text-slate-400">
+          <div className="flex items-center gap-3 text-sm text-[var(--muted)]">
             <Clock3 size={18} /> {Math.floor(timeLeft / 60)}:
             {String(timeLeft % 60).padStart(2, "0")}
           </div>
@@ -384,15 +381,15 @@ export function QuizPage({
 
         <Card className="p-6">
           <div className="mb-4 flex items-center justify-between gap-4">
-            <div className="text-sm text-slate-500 dark:text-slate-400">
+            <div className="text-sm text-[var(--muted)]">
               Question {currentIndex + 1} / {questions.length}
             </div>
-            <div className="text-sm text-slate-500 dark:text-slate-400">
+            <div className="text-sm text-[var(--muted)]">
               {currentQuestion.category} • {currentQuestion.difficulty}
             </div>
           </div>
           <ProgressBar value={progress} className="mb-6" />
-          <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
+          <h2 className="text-2xl font-bold text-[var(--foreground)]">
             {currentQuestion.question}
           </h2>
           <div className="mt-6 space-y-3">
@@ -407,8 +404,8 @@ export function QuizPage({
                 }
                 className={`flex w-full items-center justify-between rounded-2xl border px-4 py-3 text-left text-sm font-medium transition ${
                   selectedAnswers[currentQuestion.id] === option
-                    ? "border-sky-500 bg-sky-50 text-sky-700 dark:border-sky-400 dark:bg-sky-950/30 dark:text-sky-200"
-                    : "border-slate-200 bg-white text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+                    ? "border-[var(--brand-orange)] bg-[var(--brand-orange-soft)] text-[var(--brand-orange)]"
+                    : "border-[var(--border)] bg-[var(--surface)] text-[var(--foreground-secondary)] hover:border-[var(--brand-orange)] hover:text-[var(--brand-orange)]"
                 }`}
               >
                 <span>{option}</span>

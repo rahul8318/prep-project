@@ -8,14 +8,14 @@ export function HrPreparationPage({
   user: any;
 }) {
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
+    <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)] transition-colors duration-200">
       <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
-        <div className="mb-6 flex items-center justify-between rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
+        <div className="mb-6 flex items-center justify-between rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-4">
           <div>
-            <p className="text-sm text-slate-500 dark:text-slate-400">
+            <p className="text-sm text-[var(--muted)]">
               Human resources
             </p>
-            <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+            <h1 className="text-2xl font-bold text-[var(--foreground)]">
               HR Preparation
             </h1>
           </div>
@@ -23,24 +23,24 @@ export function HrPreparationPage({
 
         <div className="grid gap-6 lg:grid-cols-2">
           {hrQuestions.map((question) => (
-            <Card key={question.id} className="p-5">
-              <div className="flex items-center gap-2 text-sky-600">
+            <Card key={question.id} className="p-5 transition-all duration-200 hover:shadow-[var(--shadow-elevated)]">
+              <div className="flex items-center gap-2 text-[var(--brand-orange)]">
                 <MessageSquareQuote size={18} /> {question.title}
               </div>
-              <p className="mt-4 text-sm leading-7 text-slate-700 dark:text-slate-300">
+              <p className="mt-4 text-sm leading-7 text-[var(--foreground-secondary)]">
                 {question.sampleAnswer}
               </p>
 
               <div className="mt-5">
-                <p className="text-sm font-semibold text-slate-900 dark:text-white">
+                <p className="text-sm font-semibold text-[var(--foreground)]">
                   Answer structure
                 </p>
-                <ul className="mt-2 space-y-2 text-sm text-slate-600 dark:text-slate-300">
+                <ul className="mt-2 space-y-2 text-sm text-[var(--foreground-secondary)]">
                   {question.answerStructure.map((item) => (
                     <li key={item} className="flex items-start gap-2">
                       <CheckCircle2
                         size={16}
-                        className="mt-0.5 text-emerald-500"
+                        className="mt-0.5 text-[var(--brand-orange)]"
                       />{" "}
                       {item}
                     </li>
@@ -48,11 +48,11 @@ export function HrPreparationPage({
                 </ul>
               </div>
 
-              <div className="mt-5 rounded-2xl bg-amber-50 p-3 dark:bg-amber-950/20">
-                <div className="flex items-center gap-2 text-amber-700 dark:text-amber-300">
+              <div className="mt-5 rounded-2xl bg-[var(--brand-orange-soft)] p-3">
+                <div className="flex items-center gap-2 text-[var(--brand-orange)]">
                   <Lightbulb size={16} /> Tips
                 </div>
-                <ul className="mt-2 space-y-1 text-sm text-amber-800 dark:text-amber-200">
+                <ul className="mt-2 space-y-1 text-sm text-[var(--foreground-secondary)]">
                   {question.tips.map((tip) => (
                     <li key={tip}>• {tip}</li>
                   ))}

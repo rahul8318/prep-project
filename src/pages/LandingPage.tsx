@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Button } from "../components/ui";
+import { Button, Card, ThemeToggle } from "../components/ui";
 import { analyticsApi } from "../services/analyticsApi";
 import type { AnalyticsOverview, CategoryPerformance } from "../services/analyticsApi";
 
@@ -65,7 +65,7 @@ const technologies = [
 
 const faqs = [
   {
-    q: "Does InterviewHub help with both coding and HR prep?",
+    q: "Does PrepForge help with both coding and HR prep?",
     a: "Yes. The platform combines technical question banks, quizzes, mock interviews, coding practice, and HR round preparation.",
   },
   {
@@ -165,69 +165,72 @@ export function HomePage({
     .filter((c) => c.score > 0)
     .sort((a, b) => a.score - b.score)
     .slice(0, 3);
+
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-50">
-      <header className="sticky top-0 z-40 border-b border-slate-200/80 bg-white/80 backdrop-blur-xl dark:border-slate-800 dark:bg-slate-950/80">
+    <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)] transition-colors duration-200">
+      <header className="sticky top-0 z-40 border-b border-[var(--border)] bg-[var(--surface)]/90 backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
           <div className="flex items-center gap-3">
-            <img
-              src="/logo.svg"
-              alt="InterviewHub"
-              className="h-10 w-10 rounded-xl object-cover shadow-lg shadow-sky-500/20"
-            />
+            <div className="relative">
+              <img
+                src="/PrepForgeBlack.png"
+                alt="PrepForge"
+                className="h-10 w-10 rounded-xl object-contain shadow-lg shadow-[var(--brand-orange-glow)] block dark:hidden"
+              />
+              <img
+                src="/logo.png"
+                alt="PrepForge"
+                className="h-10 w-10 rounded-xl object-contain shadow-lg shadow-[var(--brand-orange-glow)] hidden dark:block"
+              />
+            </div>
             <div>
-              <p className="text-lg font-bold tracking-tight">InterviewHub</p>
+              <p className="text-lg font-bold tracking-tight">PrepForge</p>
             </div>
           </div>
 
-          <nav className="hidden items-center gap-8 text-sm font-medium text-slate-600 dark:text-slate-300 md:flex">
+          <nav className="hidden items-center gap-8 text-sm font-medium text-[var(--foreground-secondary)] md:flex">
             <a
               href="#home"
-              className="hover:text-slate-900 dark:hover:text-white"
+              className="hover:text-[var(--brand-orange)] transition-colors"
             >
               Home
             </a>
             <a
               href="#features"
-              className="hover:text-slate-900 dark:hover:text-white"
+              className="hover:text-[var(--brand-orange)] transition-colors"
             >
               Features
             </a>
             <a
               href="#practice"
-              className="hover:text-slate-900 dark:hover:text-white"
+              className="hover:text-[var(--brand-orange)] transition-colors"
             >
               Practice
             </a>
             <a
               href="#mock"
-              className="hover:text-slate-900 dark:hover:text-white"
+              className="hover:text-[var(--brand-orange)] transition-colors"
             >
               Mock Interview
             </a>
             <a
               href="#pricing"
-              className="hover:text-slate-900 dark:hover:text-white"
+              className="hover:text-[var(--brand-orange)] transition-colors"
             >
               Pricing
             </a>
           </nav>
 
           <div className="flex items-center gap-3">
-            <button
-              onClick={toggleTheme}
-              className="rounded-full border border-slate-200 bg-white px-3 py-2 text-xs font-medium dark:border-slate-700 dark:bg-slate-900"
-            >
-              {theme === "dark" ? "Light" : "Dark"}
-            </button>
+            <ThemeToggle dark={theme === "dark"} onToggle={toggleTheme} />
             {isAuthenticated && user ? (
               <>
-                <span className="hidden text-sm font-medium text-slate-700 dark:text-slate-200 sm:inline-flex">
+                <span className="hidden text-sm font-medium text-[var(--foreground-secondary)] sm:inline-flex">
                   {user.name}
                 </span>
                 <Link
                   to="/dashboard"
-                  className="inline-flex items-center gap-2 rounded-xl bg-sky-600 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-sky-500/20 hover:bg-sky-500"
+                  className="inline-flex items-center gap-2 rounded-xl bg-[var(--brand-orange)] px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-[var(--brand-orange-glow)] hover:bg-[var(--brand-orange-hover)] transition-all"
                 >
                   Dashboard <ArrowRight size={16} />
                 </Link>
@@ -236,13 +239,13 @@ export function HomePage({
               <>
                 <Link
                   to="/auth"
-                  className="hidden rounded-xl border border-slate-200 px-4 py-2 text-sm font-medium hover:border-sky-300 sm:inline-flex"
+                  className="hidden rounded-xl border border-[var(--border)] px-4 py-2 text-sm font-medium hover:border-[var(--brand-orange)] hover:text-[var(--brand-orange)] transition-all sm:inline-flex"
                 >
                   Login
                 </Link>
                 <Link
                   to="/dashboard"
-                  className="inline-flex items-center gap-2 rounded-xl bg-sky-600 px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-sky-500/20 hover:bg-sky-500"
+                  className="inline-flex items-center gap-2 rounded-xl bg-[var(--brand-orange)] px-4 py-2 text-sm font-semibold text-white shadow-lg shadow-[var(--brand-orange-glow)] hover:bg-[var(--brand-orange-hover)] transition-all"
                 >
                   Get Started <ArrowRight size={16} />
                 </Link>
@@ -253,19 +256,18 @@ export function HomePage({
       </header>
 
       <main id="home">
-        <section className="relative overflow-hidden px-4 pb-16 pt-12 sm:px-6 lg:px-8">
-          <div className="absolute inset-0 -z-10 bg-gradient-to-br from-sky-50 via-white to-violet-50 dark:from-slate-950 dark:via-slate-950 dark:to-slate-900" />
+        <section className="relative overflow-hidden px-4 pb-20 pt-16 sm:px-6 lg:px-8">
+          <div className="absolute inset-0 -z-10 bg-gradient-to-br from-[var(--brand-orange-soft)] via-[var(--background)] to-[var(--background)] dark:from-[var(--brand-orange-soft)] dark:via-[var(--background)] dark:to-[var(--background-secondary)]" />
           <div className="mx-auto max-w-7xl">
             <div className="grid items-center gap-10 lg:grid-cols-[1.1fr_0.9fr]">
               <div>
-                <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-sky-200 bg-sky-50 px-3 py-1.5 text-sm font-medium text-sky-700 dark:border-sky-900 dark:bg-sky-950/40 dark:text-sky-300">
-                  <Sparkles size={16} /> Interview prep for the next big step
-                </div>
-                <h1 className="max-w-xl text-4xl font-black tracking-tight text-slate-900 dark:text-white sm:text-5xl lg:text-6xl">
-                  Prepare Smarter. Interview Better.
+                <h1 className="max-w-xl text-4xl font-black tracking-tight sm:text-5xl lg:text-6xl">
+                  <span className="text-[var(--foreground)]">Forge Your</span>
+                  <br />
+                  <span className="text-[var(--brand-orange)]">Future in Tech</span>
                 </h1>
-                <p className="mt-6 max-w-xl text-lg text-slate-600 dark:text-slate-300">
-                  InterviewHub helps students and developers sharpen technical
+                <p className="mt-6 max-w-xl text-lg text-[var(--foreground-secondary)]">
+                  PrepForge helps students and developers sharpen technical
                   and HR interview skills with personalized practice, real-world
                   questions, mock interviews, and progress analytics.
                 </p>
@@ -282,10 +284,10 @@ export function HomePage({
                 <div className="mt-10 flex flex-wrap gap-8">
                   {stats.map((item) => (
                     <div key={item.label}>
-                      <div className="text-2xl font-bold text-slate-900 dark:text-white">
+                      <div className="text-2xl font-bold text-[var(--brand-orange)]">
                         {item.value}
                       </div>
-                      <div className="text-sm text-slate-600 dark:text-slate-300">
+                      <div className="text-sm text-[var(--foreground-secondary)]">
                         {item.label}
                       </div>
                     </div>
@@ -294,31 +296,31 @@ export function HomePage({
               </div>
 
               <div className="relative">
-                <div className="absolute -left-8 top-6 h-24 w-24 rounded-full bg-sky-400/20 blur-3xl" />
-                <div className="absolute -right-6 bottom-10 h-24 w-24 rounded-full bg-violet-500/20 blur-3xl" />
-                <div className="relative rounded-[28px] border border-slate-200 bg-slate-900 p-4 shadow-2xl shadow-slate-900/10 dark:border-slate-700">
-                  <div className="rounded-[20px] bg-slate-950 p-4">
+                <div className="absolute -left-8 top-6 h-24 w-24 rounded-full bg-[var(--brand-orange-glow)] blur-3xl" />
+                <div className="absolute -right-6 bottom-10 h-24 w-24 rounded-full bg-[var(--brand-orange-glow)] blur-3xl" />
+                <div className="relative rounded-[28px] border border-[var(--border)] bg-[var(--surface-elevated)] p-4 shadow-[var(--shadow-elevated)]">
+                  <div className="rounded-[20px] bg-[var(--background)] p-4">
                     <div className="mb-4 flex items-center justify-between">
                       <div className="flex gap-2">
-                        <span className="h-3 w-3 rounded-full bg-rose-400" />
-                        <span className="h-3 w-3 rounded-full bg-amber-400" />
-                        <span className="h-3 w-3 rounded-full bg-emerald-400" />
+                        <span className="h-3 w-3 rounded-full bg-[var(--brand-orange)]" />
+                        <span className="h-3 w-3 rounded-full bg-[var(--foreground-secondary)]" />
+                        <span className="h-3 w-3 rounded-full bg-[var(--muted)]" />
                       </div>
-                      <span className="rounded-full bg-sky-500/10 px-2 py-1 text-xs text-sky-300">
+                      <span className="rounded-full bg-[var(--brand-orange-soft)] px-2 py-1 text-xs text-[var(--brand-orange)]">
                         Live Prep
                       </span>
                     </div>
                     <div className="grid gap-4 md:grid-cols-2">
-                      <div className="rounded-2xl bg-slate-800 p-4">
-                        <div className="text-sm text-slate-300">
+                      <div className="rounded-2xl bg-[var(--surface-elevated)] p-4">
+                        <div className="text-sm text-[var(--foreground-secondary)]">
                           Preparation
                         </div>
-                        <div className="mt-3 text-3xl font-bold text-white">
+                        <div className="mt-3 text-3xl font-bold text-[var(--foreground)]">
                           {isAuthenticated ? `${preparationPercent}%` : "—"}
                         </div>
-                        <div className="mt-4 h-2 rounded-full bg-slate-700">
+                        <div className="mt-4 h-2 rounded-full bg-[var(--surface)]">
                           <div
-                            className="h-full rounded-full bg-gradient-to-r from-sky-500 to-violet-500"
+                            className="h-full rounded-full bg-gradient-to-r from-[var(--brand-orange)] to-[var(--brand-orange-hover)]"
                             style={{
                               width: isAuthenticated
                                 ? `${Math.min(100, preparationPercent)}%`
@@ -326,7 +328,7 @@ export function HomePage({
                             }}
                           />
                         </div>
-                        <div className="mt-4 flex items-center justify-between text-xs text-slate-400">
+                        <div className="mt-4 flex items-center justify-between text-xs text-[var(--muted)]">
                           <span>
                             {topCategories[0]?.name || "JavaScript"}
                           </span>
@@ -336,7 +338,7 @@ export function HomePage({
                               : "—"}
                           </span>
                         </div>
-                        <div className="mt-2 flex items-center justify-between text-xs text-slate-400">
+                        <div className="mt-2 flex items-center justify-between text-xs text-[var(--muted)]">
                           <span>
                             {topCategories[1]?.name || "React"}
                           </span>
@@ -347,8 +349,8 @@ export function HomePage({
                           </span>
                         </div>
                       </div>
-                      <div className="rounded-2xl bg-gradient-to-br from-sky-500 to-violet-500 p-4 text-white">
-                        <div className="text-sm text-sky-100">Daily streak</div>
+                      <div className="rounded-2xl bg-gradient-to-br from-[var(--brand-orange)] to-[var(--brand-orange-hover)] p-4 text-white">
+                        <div className="text-sm text-white/80">Daily streak</div>
                         <div className="mt-3 text-3xl font-bold">
                           {isAuthenticated ? `${streak} days` : "—"}
                         </div>
@@ -357,8 +359,8 @@ export function HomePage({
                         </div>
                       </div>
                     </div>
-                    <div className="mt-4 rounded-2xl bg-slate-800 p-4">
-                      <div className="mb-2 flex items-center justify-between text-sm text-slate-300">
+                    <div className="mt-4 rounded-2xl bg-[var(--surface-elevated)] p-4">
+                      <div className="mb-2 flex items-center justify-between text-sm text-[var(--foreground-secondary)]">
                         <span>Weak topics</span>
                         <span>
                           {isAuthenticated && weakCategories.length > 0
@@ -366,7 +368,7 @@ export function HomePage({
                             : "—"}
                         </span>
                       </div>
-                      <div className="space-y-2 text-xs text-slate-300">
+                      <div className="space-y-2 text-xs text-[var(--muted)]">
                         {weakCategories.length > 0 ? (
                           weakCategories.map((topic) => (
                             <div
@@ -405,29 +407,29 @@ export function HomePage({
         <section id="features" className="px-4 py-20 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-7xl">
             <div className="mb-12 text-center">
-              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-sky-600">
+              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[var(--brand-orange)]">
                 Features
               </p>
-              <h2 className="mt-4 text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
+              <h2 className="mt-4 text-3xl font-bold tracking-tight text-[var(--foreground)]">
                 Everything you need to ace your next interview
               </h2>
             </div>
             <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
               {features.map(({ icon: Icon, title, description }) => (
-                <div
+                <Card
                   key={title}
-                  className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-xl dark:border-slate-800 dark:bg-slate-900"
+                  className="transition-all duration-200 hover:-translate-y-1"
                 >
-                  <div className="mb-4 inline-flex rounded-xl bg-sky-100 p-3 text-sky-700 dark:bg-sky-950/40 dark:text-sky-300">
+                  <div className="mb-4 inline-flex rounded-xl bg-[var(--brand-orange-soft)] p-3 text-[var(--brand-orange)]">
                     <Icon size={22} />
                   </div>
-                  <h3 className="text-xl font-semibold text-slate-900 dark:text-white">
+                  <h3 className="text-xl font-semibold text-[var(--foreground)]">
                     {title}
                   </h3>
-                  <p className="mt-3 text-sm text-slate-600 dark:text-slate-300">
+                  <p className="mt-3 text-sm text-[var(--foreground-secondary)]">
                     {description}
                   </p>
-                </div>
+                </Card>
               ))}
             </div>
           </div>
@@ -435,15 +437,15 @@ export function HomePage({
 
         <section
           id="practice"
-          className="bg-slate-900 px-4 py-20 text-white sm:px-6 lg:px-8"
+          className="bg-[var(--background-secondary)] px-4 py-20 sm:px-6 lg:px-8"
         >
           <div className="mx-auto max-w-7xl">
             <div className="grid gap-10 lg:grid-cols-2">
               <div>
-                <p className="text-sm font-semibold uppercase tracking-[0.2em] text-sky-300">
+                <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[var(--brand-orange)]">
                   How it works
                 </p>
-                <h2 className="mt-4 text-3xl font-bold">
+                <h2 className="mt-4 text-3xl font-bold text-[var(--foreground)]">
                   Build your interview confidence in 3 steps
                 </h2>
                 <div className="mt-8 space-y-6">
@@ -464,32 +466,31 @@ export function HomePage({
                       "Review analytics, weak topics, and streak performance to refine your study plan.",
                     ],
                   ].map(([step, title, desc]) => (
-                    <div
-                      key={step}
-                      className="flex gap-4 rounded-2xl border border-slate-800 bg-slate-800/50 p-4"
-                    >
-                      <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-sky-500/10 font-bold text-sky-300">
-                        {step}
+                    <Card key={step} className="transition-all duration-200 hover:-translate-y-1">
+                      <div className="flex gap-4">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--brand-orange-soft)] font-bold text-[var(--brand-orange)]">
+                          {step}
+                        </div>
+                        <div>
+                          <h3 className="text-lg font-semibold text-[var(--foreground)]">{title}</h3>
+                          <p className="mt-1 text-sm text-[var(--foreground-secondary)]">{desc}</p>
+                        </div>
                       </div>
-                      <div>
-                        <h3 className="text-lg font-semibold">{title}</h3>
-                        <p className="mt-1 text-sm text-slate-300">{desc}</p>
-                      </div>
-                    </div>
+                    </Card>
                   ))}
                 </div>
               </div>
-              <div className="rounded-[28px] border border-slate-800 bg-slate-800/50 p-6">
+              <Card className="transition-all duration-200 hover:-translate-y-1">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-slate-300">
+                    <p className="text-sm text-[var(--foreground-secondary)]">
                       Technology categories
                     </p>
-                    <h3 className="mt-2 text-2xl font-bold">
+                    <h3 className="mt-2 text-2xl font-bold text-[var(--foreground)]">
                       Practice by stack
                     </h3>
                   </div>
-                  <div className="rounded-full bg-sky-500/10 px-3 py-1 text-sm text-sky-300">
+                  <div className="rounded-full bg-[var(--brand-orange-soft)] px-3 py-1 text-sm font-semibold text-[var(--brand-orange)]">
                     12 tracks
                   </div>
                 </div>
@@ -497,31 +498,31 @@ export function HomePage({
                   {technologies.map((tech) => (
                     <span
                       key={tech}
-                      className="rounded-full border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-200"
+                      className="rounded-full border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm text-[var(--foreground-secondary)]"
                     >
                       {tech}
                     </span>
                   ))}
                 </div>
                 <div className="mt-8 grid gap-4 sm:grid-cols-2">
-                  <div className="rounded-2xl bg-slate-900 p-4">
-                    <p className="text-sm text-slate-400">Current goal</p>
-                    <p className="mt-2 text-xl font-bold">
+                  <div className="rounded-2xl bg-[var(--surface)] p-4">
+                    <p className="text-sm text-[var(--muted)]">Current goal</p>
+                    <p className="mt-2 text-xl font-bold text-[var(--foreground)]">
                       React interview prep
                     </p>
-                    <div className="mt-4 flex items-center gap-2 text-sm text-emerald-400">
+                    <div className="mt-4 flex items-center gap-2 text-sm text-[var(--brand-orange)]">
                       <CheckCircle2 size={16} /> 7/10 tasks completed
                     </div>
                   </div>
-                  <div className="rounded-2xl bg-slate-900 p-4">
-                    <p className="text-sm text-slate-400">Next milestone</p>
-                    <p className="mt-2 text-xl font-bold">Mock interview</p>
-                    <div className="mt-4 flex items-center gap-2 text-sm text-violet-400">
+                  <div className="rounded-2xl bg-[var(--surface)] p-4">
+                    <p className="text-sm text-[var(--muted)]">Next milestone</p>
+                    <p className="mt-2 text-xl font-bold text-[var(--foreground)]">Mock interview</p>
+                    <div className="mt-4 flex items-center gap-2 text-sm text-[var(--brand-orange)]">
                       <PlayCircle size={16} /> Ready to start
                     </div>
                   </div>
                 </div>
-              </div>
+              </Card>
             </div>
           </div>
         </section>
@@ -529,29 +530,26 @@ export function HomePage({
         <section id="mock" className="px-4 py-20 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-7xl">
             <div className="mb-10 text-center">
-              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-sky-600">
+              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[var(--brand-orange)]">
                 Testimonials
               </p>
-              <h2 className="mt-4 text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
-                Learners who got hired with InterviewHub
+              <h2 className="mt-4 text-3xl font-bold tracking-tight text-[var(--foreground)]">
+                Learners who got hired with PrepForge
               </h2>
             </div>
             <div className="grid gap-6 md:grid-cols-3">
               {testimonials.map((story) => (
-                <div
-                  key={story.name}
-                  className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900"
-                >
-                  <div className="mb-4 flex gap-1 text-amber-400">
+                <Card key={story.name} className="transition-all duration-200 hover:-translate-y-1">
+                  <div className="mb-4 flex gap-1 text-[var(--brand-orange)]">
                     {Array.from({ length: 5 }).map((_, index) => (
                       <Star key={index} size={16} fill="currentColor" />
                     ))}
                   </div>
-                  <p className="text-base text-slate-700 dark:text-slate-200">
-                    “{story.quote}”
+                  <p className="text-base text-[var(--foreground-secondary)]">
+                    &ldquo;{story.quote}&rdquo;
                   </p>
                   <div className="mt-6 flex items-center gap-3">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-sky-500 to-violet-500 text-sm font-bold text-white">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-gradient-to-br from-[var(--brand-orange)] to-[var(--brand-orange-hover)] text-sm font-bold text-white">
                       {story.name
                         .split(" ")
                         .map((n) => n[0])
@@ -559,70 +557,65 @@ export function HomePage({
                         .slice(0, 2)}
                     </div>
                     <div>
-                      <div className="font-semibold">{story.name}</div>
-                      <div className="text-sm text-slate-500 dark:text-slate-400">
-                        {story.role}
-                      </div>
+                      <div className="font-semibold text-[var(--foreground)]">{story.name}</div>
+                      <div className="text-sm text-[var(--muted)]">{story.role}</div>
                     </div>
                   </div>
-                </div>
+                </Card>
               ))}
             </div>
           </div>
         </section>
 
-        <section className="bg-slate-50 px-4 py-20 dark:bg-slate-950 sm:px-6 lg:px-8">
+        <section className="bg-[var(--background-secondary)] px-4 py-20 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-4xl">
             <div className="mb-10 text-center">
-              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-sky-600">
+              <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[var(--brand-orange)]">
                 FAQ
               </p>
-              <h2 className="mt-4 text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
+              <h2 className="mt-4 text-3xl font-bold tracking-tight text-[var(--foreground)]">
                 Frequently asked questions
               </h2>
             </div>
             <div className="space-y-4">
               {faqs.map(({ q, a }, index) => (
-                <div
-                  key={`${q}-${index}`}
-                  className="rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900"
-                >
+                <Card key={`${q}-${index}`} className="transition-all duration-200 hover:-translate-y-1">
                   <div className="flex items-start justify-between gap-4">
                     <div>
-                      <p className="text-lg font-semibold text-slate-900 dark:text-white">
+                      <p className="text-lg font-semibold text-[var(--foreground)]">
                         {q}
                       </p>
-                      <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
+                      <p className="mt-2 text-sm text-[var(--foreground-secondary)]">
                         {a}
                       </p>
                     </div>
-                    <ChevronDown className="mt-1 text-slate-400" size={18} />
+                    <ChevronDown className="mt-1 text-[var(--muted)]" size={18} />
                   </div>
-                </div>
+                </Card>
               ))}
             </div>
           </div>
         </section>
 
         <section id="pricing" className="px-4 py-20 sm:px-6 lg:px-8">
-          <div className="mx-auto max-w-5xl rounded-[28px] border border-slate-200 bg-gradient-to-r from-sky-600 to-violet-600 p-8 text-white shadow-xl shadow-sky-500/20">
+          <div className="mx-auto max-w-5xl rounded-[28px] border border-[var(--border)] bg-gradient-to-r from-[var(--brand-orange)] to-[var(--brand-orange-hover)] p-8 text-white shadow-xl shadow-[var(--brand-orange-glow)]">
             <div className="flex flex-col gap-8 lg:flex-row lg:items-center lg:justify-between">
               <div>
-                <p className="text-sm font-semibold uppercase tracking-[0.2em] text-sky-100">
+                <p className="text-sm font-semibold uppercase tracking-[0.2em] text-white/80">
                   Free plan
                 </p>
-                <h2 className="mt-4 text-3xl font-bold">
+                <h2 className="mt-4 text-3xl font-bold text-white">
                   Start for free. Upgrade when you are ready.
                 </h2>
               </div>
               <div className="flex flex-wrap items-center gap-4">
-                <div className="rounded-full bg-white/10 px-4 py-2 text-sm font-semibold">
+                <div className="rounded-full bg-white/10 px-4 py-2 text-sm font-semibold text-white">
                   Free forever
                 </div>
                 <Link to="/auth">
                   <Button
                     variant="secondary"
-                    className="bg-white text-slate-900 hover:bg-slate-100"
+                    className="bg-white text-[#0A0A0A] hover:bg-white/90 border-0"
                   >
                     Try now
                   </Button>
@@ -633,25 +626,32 @@ export function HomePage({
         </section>
       </main>
 
-      <footer className="border-t border-slate-200 bg-white px-4 py-10 dark:border-slate-800 dark:bg-slate-950 sm:px-6 lg:px-8">
+      <footer className="border-t border-[var(--border)] bg-[var(--surface)] px-4 py-10 sm:px-6 lg:px-8">
         <div className="mx-auto flex max-w-7xl flex-col gap-6 md:flex-row md:items-center md:justify-between">
           <div>
             <div className="flex items-center gap-3">
-              <img
-                src="/logo.svg"
-                alt="InterviewHub"
-                className="h-9 w-9 rounded-lg object-cover"
-              />
-              <div className="font-bold">InterviewHub</div>
+              <div className="relative">
+                <img
+                  src="/PrepForgeBlack.png"
+                  alt="PrepForge"
+                  className="h-9 w-9 rounded-lg object-contain block dark:hidden"
+                />
+                <img
+                  src="/logo.png"
+                  alt="PrepForge"
+                  className="h-9 w-9 rounded-lg object-contain hidden dark:block"
+                />
+              </div>
+              <div className="font-bold text-[var(--foreground)]">PrepForge</div>
             </div>
           </div>
-          <div className="flex flex-wrap gap-6 text-sm text-slate-600 dark:text-slate-300">
+          <div className="flex flex-wrap gap-6 text-sm text-[var(--foreground-secondary)]">
             <a href="#features">Features</a>
             <a href="#practice">Practice</a>
             <a href="#mock">Mock Interview</a>
             <a href="#pricing">Pricing</a>
           </div>
-          <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
+          <div className="flex items-center gap-2 text-sm text-[var(--muted)]">
             <Users size={16} /> 24k+ users
           </div>
         </div>

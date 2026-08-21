@@ -65,14 +65,14 @@ export function FlashcardsPage({
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
+    <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)] transition-colors duration-200">
       <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
-        <div className="mb-6 flex items-center justify-between rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
+        <div className="mb-6 flex items-center justify-between rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-4">
           <div>
-            <p className="text-sm text-slate-500 dark:text-slate-400">
+            <p className="text-sm text-[var(--muted)]">
               Memory mode
             </p>
-            <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+            <h1 className="text-2xl font-bold text-[var(--foreground)]">
               Flashcards
             </h1>
           </div>
@@ -80,10 +80,10 @@ export function FlashcardsPage({
 
         <Card className="p-6">
           {loading ? (
-            <div className="h-64 animate-pulse rounded-2xl bg-slate-100 dark:bg-slate-800" />
+            <div className="h-64 animate-pulse rounded-2xl bg-[var(--surface-elevated)]" />
           ) : current ? (
             <>
-              <div className="flex items-center justify-between text-sm text-slate-500 dark:text-slate-400">
+              <div className="flex items-center justify-between text-sm text-[var(--foreground-secondary)]">
                 <span className="inline-flex items-center gap-2">
                   <BookOpen size={16} /> {index + 1} / {cards.length}
                 </span>
@@ -94,23 +94,23 @@ export function FlashcardsPage({
 
               <button
                 onClick={() => setFlipped((prev) => !prev)}
-                className="mt-6 block w-full rounded-[28px] border border-slate-200 bg-gradient-to-br from-sky-50 to-violet-50 p-8 text-left shadow-sm transition hover:shadow-md dark:border-slate-700 dark:from-slate-900 dark:to-slate-800"
+                className="mt-6 block w-full rounded-[28px] border border-[var(--border)] bg-[var(--surface)] p-8 text-left shadow-[var(--shadow)] transition hover:shadow-[var(--shadow-elevated)] hover:border-[var(--brand-orange)]"
               >
-                <div className="text-xs uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">
+                <div className="text-xs uppercase tracking-[0.2em] text-[var(--muted)]">
                   {flipped ? "Answer" : "Question"}
                 </div>
-                <h2 className="mt-4 text-2xl font-bold text-slate-900 dark:text-white">
+                <h2 className="mt-4 text-2xl font-bold text-[var(--foreground)]">
                   {flipped ? current.answer : current.question}
                 </h2>
                 {flipped && current.explanation && (
-                  <p className="mt-4 text-sm leading-7 text-slate-600 dark:text-slate-300">
+                  <p className="mt-4 text-sm leading-7 text-[var(--foreground-secondary)]">
                     {current.explanation}
                   </p>
                 )}
               </button>
             </>
           ) : (
-            <div className="py-20 text-center text-sm text-slate-500 dark:text-slate-400">
+            <div className="py-20 text-center text-sm text-[var(--muted)]">
               No flashcards available yet.
             </div>
           )}

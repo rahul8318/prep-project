@@ -48,14 +48,14 @@ export function BookmarksPage({
   }, []);
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
+    <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)] transition-colors duration-200">
       <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
-        <div className="mb-6 flex items-center justify-between rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
+        <div className="mb-6 flex items-center justify-between rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-4">
           <div>
-            <p className="text-sm text-slate-500 dark:text-slate-400">
+            <p className="text-sm text-[var(--muted)]">
               Saved for later
             </p>
-            <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+            <h1 className="text-2xl font-bold text-[var(--foreground)]">
               Bookmarks
             </h1>
           </div>
@@ -68,33 +68,33 @@ export function BookmarksPage({
                 {Array.from({ length: 3 }).map((_, i) => (
                   <div
                     key={i}
-                    className="h-16 animate-pulse rounded-2xl bg-slate-100 dark:bg-slate-800"
+                    className="h-16 animate-pulse rounded-2xl bg-[var(--surface-elevated)]"
                   />
                 ))}
               </div>
             </Card>
           ) : items.length === 0 ? (
-            <Card className="p-6 text-center text-sm text-slate-500 dark:text-slate-400">
+            <Card className="p-6 text-center text-sm text-[var(--muted)]">
               No bookmarks yet. Browse questions and save your favorites.
             </Card>
           ) : (
             items.map((item) => (
-              <Card key={item._id} className="p-4">
+              <Card key={item._id} className="p-4 transition-all duration-200 hover:shadow-[var(--shadow-elevated)]">
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex items-start gap-3">
-                    <div className="rounded-xl bg-sky-100 p-2 text-sky-700 dark:bg-sky-950/40 dark:text-sky-300">
+                    <div className="rounded-xl bg-[var(--brand-orange-soft)] p-2 text-[var(--brand-orange)]">
                       <Bookmark size={16} />
                     </div>
                     <div>
-                      <p className="text-lg font-semibold text-slate-900 dark:text-white">
+                      <p className="text-lg font-semibold text-[var(--foreground)]">
                         {item.question}
                       </p>
-                      <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+                      <p className="mt-1 text-sm text-[var(--muted)]">
                         {item.category}
                       </p>
                     </div>
                   </div>
-                  <BookMarked size={18} className="text-sky-600" />
+                  <BookMarked size={18} className="text-[var(--brand-orange)]" />
                 </div>
               </Card>
             ))

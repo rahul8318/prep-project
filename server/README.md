@@ -1,8 +1,8 @@
-# InterviewHub - Full Stack Interview Preparation Platform
+# PrepForge - Full Stack Interview Preparation Platform
 
 ## Project Overview
 
-InterviewHub is a comprehensive full-stack interview preparation platform built with React, TypeScript, Node.js, Express, and MongoDB. It helps users prepare for technical interviews through quizzes, mock interviews, flashcards, daily challenges, and analytics.
+PrepForge is a comprehensive full-stack interview preparation platform built with React, TypeScript, Node.js, Express, and MongoDB. It helps users prepare for technical interviews through quizzes, mock interviews, flashcards, daily challenges, and analytics.
 
 ## Tech Stack
 
