@@ -7,7 +7,6 @@ import {
   TimerReset,
   XCircle,
   ArrowRight,
-  ArrowLeft,
 } from "lucide-react";
 import { Button, Card, ProgressBar } from "../components/ui";
 import { interviewApi } from "../services/interviewApi";
@@ -146,14 +145,14 @@ export function MockInterviewPage({
   const seconds = timeLeft % 60;
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
+    <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)] transition-colors duration-200">
       <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8">
-        <div className="mb-6 flex items-center justify-between rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
+        <div className="mb-6 flex items-center justify-between rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-4">
           <div>
-            <p className="text-sm text-slate-500 dark:text-slate-400">
+            <p className="text-sm text-[var(--muted)]">
               Interview simulator
             </p>
-            <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+            <h1 className="text-2xl font-bold text-[var(--foreground)]">
               Mock Interview
             </h1>
           </div>
@@ -161,7 +160,7 @@ export function MockInterviewPage({
 
         {loading ? (
           <Card className="p-6">
-            <div className="h-64 animate-pulse rounded-2xl bg-slate-100 dark:bg-slate-800" />
+            <div className="h-64 animate-pulse rounded-2xl bg-[var(--surface-elevated)]" />
           </Card>
         ) : error ? (
           <Card className="p-6 text-center text-sm text-rose-600 dark:text-rose-400">
@@ -170,48 +169,48 @@ export function MockInterviewPage({
         ) : !started && !submitted ? (
           <div className="grid gap-6 lg:grid-cols-[1fr_0.75fr]">
             <Card className="p-6">
-              <div className="flex items-center gap-3 text-sky-600">
+              <div className="flex items-center gap-3 text-[var(--brand-orange)]">
                 <BriefcaseBusiness size={20} /> Interview round setup
               </div>
               <div className="mt-6 grid gap-4 md:grid-cols-2">
                 <div>
-                  <label className="mb-2 block text-sm text-slate-600 dark:text-slate-300">
+                  <label className="mb-2 block text-sm text-[var(--foreground-secondary)]">
                     Track
                   </label>
                   <select
                     value={mode}
                     onChange={(e) => setMode(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm dark:border-slate-700 dark:bg-slate-950"
+                    className="w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 py-2.5 text-sm text-[var(--foreground)]"
                   >
                     {interviewModes.map((item) => (
-                      <option key={item}>{item}</option>
+                      <option key={item} value={item}>{item}</option>
                     ))}
                   </select>
                 </div>
                 <div>
-                  <label className="mb-2 block text-sm text-slate-600 dark:text-slate-300">
+                  <label className="mb-2 block text-sm text-[var(--foreground-secondary)]">
                     Difficulty
                   </label>
                   <select
                     value={difficulty}
                     onChange={(e) => setDifficulty(e.target.value)}
-                    className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm dark:border-slate-700 dark:bg-slate-950"
+                    className="w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 py-2.5 text-sm text-[var(--foreground)]"
                   >
                     {difficultyLevels.map((item) => (
-                      <option key={item}>{item}</option>
+                      <option key={item} value={item}>{item}</option>
                     ))}
                   </select>
                 </div>
               </div>
 
-              <div className="mt-6 rounded-2xl bg-slate-50 p-4 dark:bg-slate-800/40">
-                <p className="text-sm text-slate-500 dark:text-slate-400">
+              <div className="mt-6 rounded-2xl bg-[var(--surface-elevated)] p-4">
+                <p className="text-sm text-[var(--muted)]">
                   Format
                 </p>
-                <h2 className="mt-2 text-xl font-bold text-slate-900 dark:text-white">
+                <h2 className="mt-2 text-xl font-bold text-[var(--foreground)]">
                   {mode} Interview — {difficulty}
                 </h2>
-                <p className="mt-3 text-sm text-slate-600 dark:text-slate-300">
+                <p className="mt-3 text-sm text-[var(--foreground-secondary)]">
                   5 MCQ questions • {TOTAL_TIME / 60} minutes • One question at a time
                 </p>
               </div>
@@ -224,7 +223,7 @@ export function MockInterviewPage({
             </Card>
 
             <Card className="p-6">
-              <h2 className="text-lg font-bold text-slate-900 dark:text-white">
+              <h2 className="text-lg font-bold text-[var(--foreground)]">
                 Session overview
               </h2>
               <div className="mt-5 space-y-4">
@@ -236,12 +235,12 @@ export function MockInterviewPage({
                 ].map((item) => (
                   <div
                     key={item.label}
-                    className="flex items-center justify-between rounded-xl bg-slate-50 p-3 dark:bg-slate-800/40"
+                    className="flex items-center justify-between rounded-xl bg-[var(--surface-elevated)] p-3"
                   >
-                    <span className="text-sm text-slate-600 dark:text-slate-300">
+                    <span className="text-sm text-[var(--foreground-secondary)]">
                       {item.label}
                     </span>
-                    <span className="text-sm font-semibold text-slate-900 dark:text-white">
+                    <span className="text-sm font-semibold text-[var(--foreground)]">
                       {item.value}
                     </span>
                   </div>
@@ -251,29 +250,29 @@ export function MockInterviewPage({
           </div>
         ) : submitted && result ? (
           <Card className="p-6">
-            <div className="mb-6 flex items-center gap-3 text-2xl font-bold text-slate-900 dark:text-white">
-              <CheckCircle2 className="text-emerald-500" /> Interview completed
+            <div className="mb-6 flex items-center gap-3 text-2xl font-bold text-[var(--foreground)]">
+              <CheckCircle2 className="text-[var(--brand-orange)]" /> Interview completed
             </div>
             <div className="grid gap-4 md:grid-cols-3">
-              <div className="rounded-2xl bg-slate-50 p-4 dark:bg-slate-800/40">
-                <p className="text-sm text-slate-500 dark:text-slate-400">
+              <div className="rounded-2xl bg-[var(--surface-elevated)] p-4">
+                <p className="text-sm text-[var(--muted)]">
                   Overall score
                 </p>
-                <p className="mt-2 text-3xl font-bold">{result.score}%</p>
+                <p className="mt-2 text-3xl font-bold text-[var(--brand-orange)]">{result.score}%</p>
               </div>
-              <div className="rounded-2xl bg-slate-50 p-4 dark:bg-slate-800/40">
-                <p className="text-sm text-slate-500 dark:text-slate-400">
+              <div className="rounded-2xl bg-[var(--surface-elevated)] p-4">
+                <p className="text-sm text-[var(--muted)]">
                   Technical
                 </p>
-                <p className="mt-2 text-3xl font-bold">
+                <p className="mt-2 text-3xl font-bold text-[var(--foreground)]">
                   {result.technicalScore}%
                 </p>
               </div>
-              <div className="rounded-2xl bg-slate-50 p-4 dark:bg-slate-800/40">
-                <p className="text-sm text-slate-500 dark:text-slate-400">
+              <div className="rounded-2xl bg-[var(--surface-elevated)] p-4">
+                <p className="text-sm text-[var(--muted)]">
                   Communication
                 </p>
-                <p className="mt-2 text-3xl font-bold">
+                <p className="mt-2 text-3xl font-bold text-[var(--foreground)]">
                   {result.communicationScore}%
                 </p>
               </div>
@@ -281,15 +280,15 @@ export function MockInterviewPage({
 
             <div className="mt-8 grid gap-6 md:grid-cols-2">
               <div>
-                <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
+                <h3 className="text-lg font-semibold text-[var(--foreground)]">
                   Strengths
                 </h3>
-                <ul className="mt-3 space-y-2 text-sm text-slate-600 dark:text-slate-300">
+                <ul className="mt-3 space-y-2 text-sm text-[var(--foreground-secondary)]">
                   {result.strengths?.map((item: string) => (
                     <li key={item} className="flex items-start gap-2">
                       <CheckCircle2
                         size={16}
-                        className="mt-0.5 text-emerald-500"
+                        className="mt-0.5 text-[var(--brand-orange)]"
                       />{" "}
                       {item}
                     </li>
@@ -297,10 +296,10 @@ export function MockInterviewPage({
                 </ul>
               </div>
               <div>
-                <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
+                <h3 className="text-lg font-semibold text-[var(--foreground)]">
                   Weaknesses
                 </h3>
-                <ul className="mt-3 space-y-2 text-sm text-slate-600 dark:text-slate-300">
+                <ul className="mt-3 space-y-2 text-sm text-[var(--foreground-secondary)]">
                   {result.weaknesses?.map((item: string) => (
                     <li key={item} className="flex items-start gap-2">
                       <XCircle size={16} className="mt-0.5 text-rose-500" />{" "}
@@ -312,48 +311,45 @@ export function MockInterviewPage({
             </div>
 
             <div className="mt-8">
-              <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
+              <h3 className="text-lg font-semibold text-[var(--foreground)]">
                 Recommendations
               </h3>
-              <ul className="mt-3 space-y-2 text-sm text-slate-600 dark:text-slate-300">
+              <ul className="mt-3 space-y-2 text-sm text-[var(--foreground-secondary)]">
                 {result.recommendations?.map((item: string) => (
                   <li key={item} className="flex items-start gap-2">
-                    <Star size={16} className="mt-0.5 text-amber-500" /> {item}
+                    <Star size={16} className="mt-0.5 text-[var(--brand-orange)]" /> {item}
                   </li>
                 ))}
               </ul>
             </div>
 
             <div className="mt-8">
-              <h3 className="text-lg font-semibold text-slate-900 dark:text-white">
+              <h3 className="text-lg font-semibold text-[var(--foreground)]">
                 Your answers
               </h3>
               <div className="mt-4 space-y-4">
                 {result.questions?.map((q: any, idx: number) => (
-                  <div
-                    key={q.questionId}
-                    className="rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900"
-                  >
-                    <p className="font-semibold text-slate-900 dark:text-white">
+                  <Card key={q.questionId} className="p-4 transition-all duration-200 hover:shadow-[var(--shadow-elevated)]">
+                    <p className="font-semibold text-[var(--foreground)]">
                       {idx + 1}. {q.question}
                     </p>
-                    <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
+                    <p className="mt-2 text-sm text-[var(--foreground-secondary)]">
                       Your answer:{" "}
-                      <span className="text-slate-900 dark:text-white">
+                      <span className="text-[var(--foreground)]">
                         {q.userAnswer || "No answer provided"}
                       </span>
                     </p>
                     {q.userAnswer !== q.correctAnswer && (
-                      <p className="mt-1 text-sm text-emerald-600 dark:text-emerald-400">
+                      <p className="mt-1 text-sm text-[var(--brand-orange)]">
                         Correct: {q.correctAnswer}
                       </p>
                     )}
                     {q.explanation && (
-                      <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+                      <p className="mt-1 text-xs text-[var(--muted)]">
                         {q.explanation}
                       </p>
                     )}
-                  </div>
+                  </Card>
                 ))}
               </div>
             </div>
@@ -367,10 +363,10 @@ export function MockInterviewPage({
         ) : started && currentQuestion ? (
           <Card className="p-6">
             <div className="mb-4 flex items-center justify-between gap-4">
-              <div className="flex items-center gap-3 text-sm text-slate-500 dark:text-slate-400">
+              <div className="flex items-center gap-3 text-sm text-[var(--muted)]">
                 <TimerReset size={18} /> {minutes}:{String(seconds).padStart(2, "0")} left
               </div>
-              <div className="text-sm text-slate-500 dark:text-slate-400">
+              <div className="text-sm text-[var(--muted)]">
                 Question {currentQuestion.currentIndex + 1} / {currentQuestion.totalQuestions}
               </div>
             </div>
@@ -379,10 +375,10 @@ export function MockInterviewPage({
               className="mb-6"
             />
 
-            <div className="mb-2 text-sm text-slate-500 dark:text-slate-400">
+            <div className="mb-2 text-sm text-[var(--muted)]">
               {currentQuestion.topic} • {currentQuestion.difficulty}
             </div>
-            <h2 className="text-2xl font-bold text-slate-900 dark:text-white">
+            <h2 className="text-2xl font-bold text-[var(--foreground)]">
               {currentQuestion.question}
             </h2>
             <div className="mt-6 space-y-3">
@@ -397,8 +393,8 @@ export function MockInterviewPage({
                   }
                   className={`flex w-full items-center justify-between rounded-2xl border px-4 py-3 text-left text-sm font-medium transition ${
                     answers[currentQuestion.id] === option
-                      ? "border-sky-500 bg-sky-50 text-sky-700 dark:border-sky-400 dark:bg-sky-950/30 dark:text-sky-200"
-                      : "border-slate-200 bg-white text-slate-700 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+                      ? "border-[var(--brand-orange)] bg-[var(--brand-orange-soft)] text-[var(--brand-orange)]"
+                      : "border-[var(--border)] bg-[var(--surface)] text-[var(--foreground-secondary)] hover:border-[var(--brand-orange)] hover:text-[var(--brand-orange)]"
                   }`}
                 >
                   <span>{option}</span>

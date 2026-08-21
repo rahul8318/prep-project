@@ -3,11 +3,28 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  font-family: Inter, "Segoe UI", sans-serif;
+  --background: #FFFFFF;
+  --background-secondary: #F7F7F7;
+  --surface: #FFFFFF;
+  --surface-elevated: #F3F3F3;
+  --foreground: #0A0A0A;
+  --foreground-secondary: #525252;
+  --muted: #737373;
+  --border: rgba(0, 0, 0, 0.08);
+  --brand-orange: #FF6B00;
+  --brand-orange-hover: #e65f00;
+  --brand-orange-soft: rgba(255, 107, 0, 0.08);
+  --brand-orange-glow: rgba(255, 107, 0, 0.25);
+  --shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.08);
+  --shadow-elevated: 0 20px 40px -15px rgba(0, 0, 0, 0.12);
+  --transition-theme: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  --font-sans: Inter, "Segoe UI", sans-serif;
+
+  font-family: var(--font-sans);
   line-height: 1.5;
   font-weight: 400;
-  color: #0f172a;
-  background: #f8fafc;
+  color: var(--foreground);
+  background-color: var(--background);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -21,6 +38,9 @@ html {
 body {
   margin: 0;
   min-width: 320px;
+  background-color: var(--background);
+  color: var(--foreground);
+  transition: var(--transition-theme);
 }
 
 * {
@@ -39,12 +59,29 @@ textarea {
 }
 
 .dark {
+  --background: #050505;
+  --background-secondary: #0D0D0D;
+  --surface: #141414;
+  --surface-elevated: #1B1B1B;
+  --foreground: #FFFFFF;
+  --foreground-secondary: #B3B3B3;
+  --muted: #737373;
+  --border: rgba(255, 255, 255, 0.10);
+  --brand-orange: #FF6B00;
+  --brand-orange-hover: #ff8533;
+  --brand-orange-soft: rgba(255, 107, 0, 0.12);
+  --brand-orange-glow: rgba(255, 107, 0, 0.35);
+  --shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.4);
+  --shadow-elevated: 0 20px 40px -15px rgba(0, 0, 0, 0.6);
+  --transition-theme: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+
   color-scheme: dark;
 }
 
 .glass {
-  background: rgba(15, 23, 42, 0.5);
+  background: var(--surface-elevated);
   backdrop-filter: blur(16px);
+  border: 1px solid var(--border);
 }
 
 .grid-pattern {

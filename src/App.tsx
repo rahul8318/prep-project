@@ -103,8 +103,8 @@ function App() {
   const appClass = useMemo(
     () =>
       theme === "dark"
-        ? "dark bg-slate-950 text-slate-50"
-        : "bg-slate-50 text-slate-900",
+        ? "dark bg-[var(--background)] text-[var(--foreground)]"
+        : "bg-[var(--background)] text-[var(--foreground)]",
     [theme],
   );
 
@@ -152,7 +152,7 @@ function App() {
     return (
       <div className={appClass}>
         <div className="flex h-screen items-center justify-center">
-          <div className="text-lg font-semibold text-slate-900 dark:text-white">
+          <div className="text-lg font-semibold text-[var(--foreground)]">
             Loading...
           </div>
         </div>
@@ -162,7 +162,7 @@ function App() {
 
   return (
     <div className={appClass}>
-      <div className="min-h-screen bg-slate-50 text-slate-900 transition-colors duration-200 dark:bg-slate-950 dark:text-slate-50">
+      <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)] transition-colors duration-200">
         <Routes>
           <Route
             path="/"

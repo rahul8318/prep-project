@@ -2,7 +2,7 @@
 
 ## ✅ Setup Complete
 
-Your InterviewHub project is now configured for React Bits Pro integration with an enhanced "Auth 4" style login page.
+Your PrepForge project is now configured for React Bits Pro integration with an enhanced "Auth 4" style login page.
 
 ## What Was Installed
 
@@ -27,7 +27,7 @@ Your new login page now features the Auth 4 design elements:
 #### Orbital Trust Ring (Desktop)
 - Animated orbital layout showing 3 customer testimonials
 - Real quotes from users who landed jobs
-- Centered InterviewHub logo
+- Centered PrepForge logo
 - Responsive design (hidden on mobile)
 
 ## Next Steps: Adding React Bits Pro Blocks

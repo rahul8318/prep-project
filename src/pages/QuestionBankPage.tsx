@@ -85,27 +85,34 @@ export function QuestionBankPage({
     setSolved((prev) => ({ ...prev, [id]: !prev[id] }));
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
+    <div className="min-h-screen bg-[var(--background)]">
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-        <div className="mb-6 flex flex-col gap-4 rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900 md:flex-row md:items-center md:justify-between">
+        <div className="mb-6 flex flex-col gap-4 rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-4 md:flex-row md:items-center md:justify-between">
           <div>
             <div className="flex items-center gap-2">
-              <img
-                src="/logo.svg"
-                alt="InterviewHub"
-                className="h-6 w-6 rounded-lg object-cover"
-              />
-              <p className="text-sm text-slate-500 dark:text-slate-400">
-                InterviewHub
+              <div className="relative">
+                <img
+                  src="/PrepForgeBlack.png"
+                  alt="PrepForge"
+                  className="h-6 w-6 rounded-lg object-contain block dark:hidden"
+                />
+                <img
+                  src="/logo.png"
+                  alt="PrepForge"
+                  className="h-6 w-6 rounded-lg object-contain hidden dark:block"
+                />
+              </div>
+              <p className="text-sm text-[var(--muted)]">
+                PrepForge
               </p>
             </div>
-            <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+            <h1 className="text-2xl font-bold text-[var(--foreground)]">
               Question Bank
             </h1>
           </div>
         </div>
 
-        <div className="mb-6 grid gap-4 rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900 md:grid-cols-[1.2fr_0.8fr_0.8fr]">
+        <div className="mb-6 grid gap-4 rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-4 md:grid-cols-[1.2fr_0.8fr_0.8fr]">
           <SearchBar
             value={search}
             onChange={setSearch}
@@ -117,7 +124,7 @@ export function QuestionBankPage({
               setCategory(e.target.value);
               setIndex(0);
             }}
-            className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm dark:border-slate-700 dark:bg-slate-950"
+            className="rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 py-2.5 text-sm text-[var(--foreground)]"
           >
             <option value="All">All categories</option>
             {categories.map((item) => (
@@ -132,7 +139,7 @@ export function QuestionBankPage({
               setDifficulty(e.target.value);
               setIndex(0);
             }}
-            className="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm dark:border-slate-700 dark:bg-slate-950"
+            className="rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 py-2.5 text-sm text-[var(--foreground)]"
           >
             <option value="All">All levels</option>
             <option value="Beginner">Beginner</option>
@@ -143,51 +150,51 @@ export function QuestionBankPage({
 
         {current ? (
           <div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
-            <div className="rounded-[28px] border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
+            <div className="rounded-[28px] border border-[var(--border)] bg-[var(--surface)] p-5">
               <div className="flex items-center justify-between gap-3">
                 <div className="flex flex-wrap items-center gap-2">
                   <CategoryBadge category={current.category} />
                   <DifficultyBadge difficulty={current.difficulty} />
                 </div>
-                <div className="text-sm text-slate-500 dark:text-slate-400">
+                <div className="text-sm text-[var(--muted)]">
                   {index + 1} / {filtered.length}
                 </div>
               </div>
 
-              <h2 className="mt-6 text-2xl font-bold text-slate-900 dark:text-white">
+              <h2 className="mt-6 text-2xl font-bold text-[var(--foreground)]">
                 {current.question}
               </h2>
-              <div className="mt-4 flex flex-wrap gap-2 text-xs text-slate-500 dark:text-slate-400">
+              <div className="mt-4 flex flex-wrap gap-2 text-xs text-[var(--muted)]">
                 {current.tags.map((tag) => (
                   <span
                     key={tag}
-                    className="rounded-full bg-slate-100 px-2.5 py-1 dark:bg-slate-800"
+                    className="rounded-full bg-[var(--surface-elevated)] px-2.5 py-1"
                   >
                     #{tag}
                   </span>
                 ))}
               </div>
 
-              <div className="mt-6 rounded-2xl border-l-4 border-sky-500 bg-sky-50 p-5 dark:bg-sky-950/40">
-                <div className="mb-2 flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.12em] text-sky-700 dark:text-sky-300">
+              <div className="mt-6 rounded-2xl border-l-4 border-[var(--brand-orange)] bg-[var(--brand-orange-soft)] p-5">
+                <div className="mb-2 flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.12em] text-[var(--brand-orange)]">
                   <CheckCircle2 size={16} /> Answer
                 </div>
-                <p className="text-base leading-7 font-medium text-sky-900 dark:text-sky-100">
+                <p className="text-base leading-7 font-medium text-[var(--foreground)]">
                   {current.answer || current.correctAnswer}
                 </p>
               </div>
 
-              <div className="mt-6 rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-700 dark:bg-slate-950/40">
-                <p className="mb-2 text-sm font-semibold uppercase tracking-[0.12em] text-slate-500 dark:text-slate-400">
+              <div className="mt-6 rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-4">
+                <p className="mb-2 text-sm font-semibold uppercase tracking-[0.12em] text-[var(--muted)]">
                   Explanation
                 </p>
-                <p className="text-sm leading-7 text-slate-700 dark:text-slate-200">
+                <p className="text-sm leading-7 text-[var(--foreground-secondary)]">
                   {current.explanation}
                 </p>
               </div>
 
               {current.codeExample && (
-                <div className="mt-6 rounded-2xl bg-slate-950 p-4 text-sm text-slate-200">
+                <div className="mt-6 rounded-2xl bg-[var(--background)] p-4 text-sm text-[var(--foreground-secondary)]">
                   <pre className="overflow-x-auto whitespace-pre-wrap">
                     {current.codeExample}
                   </pre>
@@ -234,21 +241,21 @@ export function QuestionBankPage({
             </div>
 
             <div className="space-y-6">
-              <div className="rounded-[26px] border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
-                <div className="flex items-center gap-2 text-slate-900 dark:text-white">
-                  <Sparkles size={18} className="text-sky-500" /> Recommended
+              <div className="rounded-[26px] border border-[var(--border)] bg-[var(--surface)] p-5">
+                <div className="flex items-center gap-2 text-[var(--foreground)]">
+                  <Sparkles size={18} className="text-[var(--brand-orange)]" /> Recommended
                   focus
                 </div>
-                <p className="mt-3 text-sm text-slate-600 dark:text-slate-300">
+                <p className="mt-3 text-sm text-[var(--foreground-secondary)]">
                   {current.topic} • {current.category}
                 </p>
               </div>
 
-              <div className="rounded-[26px] border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
-                <div className="flex items-center gap-2 text-slate-900 dark:text-white">
-                  <Filter size={18} className="text-sky-500" /> Filters
+              <div className="rounded-[26px] border border-[var(--border)] bg-[var(--surface)] p-5">
+                <div className="flex items-center gap-2 text-[var(--foreground)]">
+                  <Filter size={18} className="text-[var(--brand-orange)]" /> Filters
                 </div>
-                <div className="mt-4 space-y-3 text-sm text-slate-600 dark:text-slate-300">
+                <div className="mt-4 space-y-3 text-sm text-[var(--foreground-secondary)]">
                   <label className="flex items-center justify-between">
                     <span>Bookmarked only</span>
                     <input type="checkbox" />

@@ -98,14 +98,14 @@ export function DailyChallengePage({
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
+    <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)] transition-colors duration-200">
       <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
-        <div className="mb-6 flex items-center justify-between rounded-2xl border border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-900">
+        <div className="mb-6 flex items-center justify-between rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-4">
           <div>
-            <p className="text-sm text-slate-500 dark:text-slate-400">
+            <p className="text-sm text-[var(--muted)]">
               Consistency streak
             </p>
-            <h1 className="text-2xl font-bold text-slate-900 dark:text-white">
+            <h1 className="text-2xl font-bold text-[var(--foreground)]">
               Daily Challenge
             </h1>
           </div>
@@ -114,14 +114,14 @@ export function DailyChallengePage({
         <Card className="mb-6 p-5">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-slate-500 dark:text-slate-400">
+              <p className="text-sm text-[var(--muted)]">
                 Today's streak
               </p>
-              <p className="mt-2 text-3xl font-bold text-slate-900 dark:text-white">
+              <p className="mt-2 text-3xl font-bold text-[var(--foreground)]">
                 12 days
               </p>
             </div>
-            <div className="rounded-2xl bg-orange-100 p-3 text-orange-600 dark:bg-orange-950/40 dark:text-orange-300">
+            <div className="rounded-2xl bg-[var(--brand-orange-soft)] p-3 text-[var(--brand-orange)]">
               <Flame size={22} />
             </div>
           </div>
@@ -134,7 +134,7 @@ export function DailyChallengePage({
                 {Array.from({ length: 3 }).map((_, i) => (
                   <div
                     key={i}
-                    className="h-20 animate-pulse rounded-2xl bg-slate-100 dark:bg-slate-800"
+                    className="h-20 animate-pulse rounded-2xl bg-[var(--surface-elevated)]"
                   />
                 ))}
               </div>
@@ -143,16 +143,16 @@ export function DailyChallengePage({
             challenge.questions.map((item) => {
               const isCompleted = progress?.completedQuestions.includes(item._id);
               return (
-                <Card key={item._id} className="p-4">
+                <Card key={item._id} className="p-4 transition-all duration-200 hover:shadow-[var(--shadow-elevated)]">
                   <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                     <div>
-                      <p className="text-lg font-semibold text-slate-900 dark:text-white">
+                      <p className="text-lg font-semibold text-[var(--foreground)]">
                         {item.question}
                       </p>
-                      <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+                      <p className="mt-1 text-sm text-[var(--foreground-secondary)]">
                         {item.topic}
                       </p>
-                      <span className="mt-2 inline-block rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-200">
+                      <span className="mt-2 inline-block rounded-full bg-[var(--surface-elevated)] px-2.5 py-1 text-xs font-medium text-[var(--foreground-secondary)]">
                         {item.category}
                       </span>
                     </div>
@@ -176,7 +176,7 @@ export function DailyChallengePage({
               );
             })
           ) : (
-            <Card className="p-6 text-center text-sm text-slate-500 dark:text-slate-400">
+            <Card className="p-6 text-center text-sm text-[var(--muted)]">
               No daily challenge available yet.
             </Card>
           )}

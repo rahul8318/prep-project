@@ -108,7 +108,7 @@ export function AuthPage({
               .slice(0, 2)
               .toUpperCase(),
           };
-          setMessage("Registration successful. Welcome to InterviewHub!");
+          setMessage("Registration successful. Welcome to PrepForge!");
           onLogin(userProfile, res.data.accessToken);
           navigate("/dashboard", { replace: true });
         } else {
@@ -156,25 +156,32 @@ export function AuthPage({
   ];
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-sky-50 via-white to-violet-50 px-4 py-10 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
+    <div className="flex min-h-screen items-center justify-center bg-[var(--background)] px-4 py-10 transition-colors duration-200">
       <div className="w-full max-w-6xl">
         <div className="grid gap-6 lg:grid-cols-2">
           {/* Left Panel: Sign-In Form */}
-          <div className="rounded-[28px] border border-slate-200 bg-white p-8 shadow-xl dark:border-slate-800 dark:bg-slate-900">
+          <div className="rounded-[28px] border border-[var(--border)] bg-[var(--surface)] p-8 shadow-[var(--shadow)]">
             <Link
               to="/"
-              className="mb-6 inline-flex items-center gap-2 text-sm text-slate-500 hover:text-sky-600 dark:text-slate-300"
+              className="mb-6 inline-flex items-center gap-2 text-sm text-[var(--foreground-secondary)] hover:text-[var(--brand-orange)] transition-colors"
             >
               <ArrowLeft size={16} /> Back home
             </Link>
 
             <div className="mb-8">
-              <img
-                src="/logo.svg"
-                alt="InterviewHub"
-                className="h-10 w-10 rounded-2xl object-cover"
-              />
-              <h1 className="text-3xl font-bold text-slate-900 dark:text-white">
+              <div className="relative mb-6">
+                <img
+                  src="/PrepForgeBlack.png"
+                  alt="PrepForge"
+                  className="h-10 w-10 rounded-2xl object-contain block dark:hidden"
+                />
+                <img
+                  src="/logo.png"
+                  alt="PrepForge"
+                  className="h-10 w-10 rounded-2xl object-contain hidden dark:block"
+                />
+              </div>
+              <h1 className="text-3xl font-bold text-[var(--foreground)]">
                 {mode === "login"
                   ? "Welcome back"
                   : mode === "register"
@@ -183,7 +190,7 @@ export function AuthPage({
                       ? "Reset password"
                       : "Choose a new password"}
               </h1>
-              <p className="mt-2 text-slate-500 dark:text-slate-400">
+              <p className="mt-2 text-[var(--foreground-secondary)]">
                 {mode === "login"
                   ? "Sign in to continue your interview prep"
                   : mode === "register"
@@ -193,22 +200,22 @@ export function AuthPage({
             </div>
 
             <div className="mb-6 flex items-center gap-3">
-              <div className="h-px flex-1 bg-slate-200 dark:bg-slate-700" />
-              <span className="text-xs text-slate-500 dark:text-slate-400">
+              <div className="h-px flex-1 bg-[var(--border)]" />
+              <span className="text-xs text-[var(--muted)]">
                 Or continue with email
               </span>
-              <div className="h-px flex-1 bg-slate-200 dark:bg-slate-700" />
+              <div className="h-px flex-1 bg-[var(--border)]" />
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               {isRegister && (
                 <label className="block">
-                  <span className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
+                  <span className="mb-2 block text-sm font-medium text-[var(--foreground-secondary)]">
                     Full name
                   </span>
                   <div className="relative">
                     <User
-                      className="absolute left-3 top-3 text-slate-400"
+                      className="absolute left-3 top-3 text-[var(--muted)]"
                       size={18}
                     />
                     <input
@@ -216,12 +223,12 @@ export function AuthPage({
                       onChange={(e) =>
                         setForm((prev) => ({ ...prev, name: e.target.value }))
                       }
-                      className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pl-10 pr-3 text-sm outline-none focus:border-sky-500 dark:border-slate-700 dark:bg-slate-950"
+                      className="w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] py-3 pl-10 pr-3 text-sm text-[var(--foreground)] outline-none transition focus:border-[var(--brand-orange)] focus:shadow-[var(--brand-orange-soft)]"
                       placeholder="Enter your name"
                     />
                   </div>
                   {errors.name && (
-                    <p className="mt-1 text-xs text-rose-600">{errors.name}</p>
+                    <p className="mt-1 text-xs text-rose-600 dark:text-rose-400">{errors.name}</p>
                   )}
                 </label>
               )}
@@ -230,12 +237,12 @@ export function AuthPage({
                 mode === "register" ||
                 mode === "forgot") && (
                 <label className="block">
-                  <span className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
+                  <span className="mb-2 block text-sm font-medium text-[var(--foreground-secondary)]">
                     Email
                   </span>
                   <div className="relative">
                     <Mail
-                      className="absolute left-3 top-3 text-slate-400"
+                      className="absolute left-3 top-3 text-[var(--muted)]"
                       size={18}
                     />
                     <input
@@ -244,12 +251,12 @@ export function AuthPage({
                       onChange={(e) =>
                         setForm((prev) => ({ ...prev, email: e.target.value }))
                       }
-                      className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pl-10 pr-3 text-sm outline-none focus:border-sky-500 dark:border-slate-700 dark:bg-slate-950"
+                      className="w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] py-3 pl-10 pr-3 text-sm text-[var(--foreground)] outline-none transition focus:border-[var(--brand-orange)] focus:shadow-[var(--brand-orange-soft)]"
                       placeholder="you@example.com"
                     />
                   </div>
                   {errors.email && (
-                    <p className="mt-1 text-xs text-rose-600">{errors.email}</p>
+                    <p className="mt-1 text-xs text-rose-600 dark:text-rose-400">{errors.email}</p>
                   )}
                 </label>
               )}
@@ -258,12 +265,12 @@ export function AuthPage({
                 mode === "register" ||
                 mode === "reset") && (
                 <label className="block">
-                  <span className="mb-2 block text-sm font-medium text-slate-700 dark:text-slate-200">
+                  <span className="mb-2 block text-sm font-medium text-[var(--foreground-secondary)]">
                     Password
                   </span>
                   <div className="relative">
                     <Lock
-                      className="absolute left-3 top-3 text-slate-400"
+                      className="absolute left-3 top-3 text-[var(--muted)]"
                       size={18}
                     />
                     <input
@@ -275,31 +282,31 @@ export function AuthPage({
                           password: e.target.value,
                         }))
                       }
-                      className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pl-10 pr-10 text-sm outline-none focus:border-sky-500 dark:border-slate-700 dark:bg-slate-950"
+                      className="w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] py-3 pl-10 pr-10 text-sm text-[var(--foreground)] outline-none transition focus:border-[var(--brand-orange)] focus:shadow-[var(--brand-orange-soft)]"
                       placeholder="••••••••"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-3 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+                      className="absolute right-3 top-3 text-[var(--muted)] hover:text-[var(--foreground)] transition-colors"
                     >
                       {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                     </button>
                   </div>
                   {errors.password && (
-                    <p className="mt-1 text-xs text-rose-600">
+                    <p className="mt-1 text-xs text-rose-600 dark:text-rose-400">
                       {errors.password}
                     </p>
                   )}
                 </label>
               )}
 
-              <div className="flex items-center justify-between text-xs text-slate-500 dark:text-slate-300">
+              <div className="flex items-center justify-between text-xs text-[var(--foreground-secondary)]">
                 {mode === "login" ? (
                   <button
                     type="button"
                     onClick={() => setMode("forgot")}
-                    className="font-medium text-sky-600 hover:text-sky-500"
+                    className="font-medium text-[var(--brand-orange)] hover:text-[var(--brand-orange-hover)] transition-colors"
                   >
                     Forgot password?
                   </button>
@@ -307,7 +314,7 @@ export function AuthPage({
                   <button
                     type="button"
                     onClick={() => setMode("login")}
-                    className="font-medium text-sky-600 hover:text-sky-500"
+                    className="font-medium text-[var(--brand-orange)] hover:text-[var(--brand-orange-hover)] transition-colors"
                   >
                     Back to login
                   </button>
@@ -327,20 +334,20 @@ export function AuthPage({
               </Button>
 
               {message && (
-                <div className="rounded-xl border border-sky-200 bg-sky-50 px-3 py-2 text-sm text-sky-700 dark:border-sky-900 dark:bg-sky-950/40 dark:text-sky-200">
+                <div className="rounded-xl border border-[var(--brand-orange)]/20 bg-[var(--brand-orange-soft)] px-3 py-2 text-sm text-[var(--brand-orange)]">
                   {message}
                 </div>
               )}
 
               {mode !== "forgot" && mode !== "reset" && (
-                <div className="text-center text-sm text-slate-500 dark:text-slate-300">
+                <div className="text-center text-sm text-[var(--foreground-secondary)]">
                   {mode === "login" ? "New here?" : "Already have an account?"}{" "}
                   <button
                     type="button"
                     onClick={() =>
                       setMode(mode === "login" ? "register" : "login")
                     }
-                    className="font-semibold text-sky-600 hover:text-sky-500"
+                    className="font-semibold text-[var(--brand-orange)] hover:text-[var(--brand-orange-hover)] transition-colors"
                   >
                     {mode === "login" ? "Create account" : "Sign in"}
                   </button>
@@ -355,12 +362,19 @@ export function AuthPage({
             <div className="relative h-80 w-80">
               {/* Center circle */}
               <div className="absolute inset-0 flex items-center justify-center">
-                <div className="rounded-full border-2 border-dashed border-sky-200 p-8 dark:border-slate-700">
-                  <img
-                    src="/logo.svg"
-                    alt="InterviewHub"
-                    className="h-20 w-20 rounded-full object-cover shadow-lg shadow-sky-500/20"
-                  />
+                <div className="rounded-full border-2 border-dashed border-[var(--border)] p-8">
+                  <div className="relative">
+                    <img
+                      src="/PrepForgeBlack.png"
+                      alt="PrepForge"
+                      className="h-20 w-20 rounded-full object-contain shadow-lg shadow-[var(--brand-orange-glow)] block dark:hidden"
+                    />
+                    <img
+                      src="/logo.png"
+                      alt="PrepForge"
+                      className="h-20 w-20 rounded-full object-contain shadow-lg shadow-[var(--brand-orange-glow)] hidden dark:block"
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -374,22 +388,22 @@ export function AuthPage({
                 return (
                   <div
                     key={testimonial.name}
-                    className="absolute left-1/2 top-1/2 w-32 -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-slate-200 bg-white p-4 shadow-lg dark:border-slate-700 dark:bg-slate-900"
+                    className="absolute left-1/2 top-1/2 w-32 -translate-x-1/2 -translate-y-1/2 rounded-2xl border border-[var(--border)] bg-[var(--surface)] p-4 shadow-[var(--shadow)]"
                     style={{
                       transform: `translate(calc(-50% + ${x}px), calc(-50% + ${y}px))`,
                     }}
                   >
-                    <div className="mb-2 flex h-8 w-8 items-center justify-center rounded-full bg-sky-100 text-xs font-bold text-sky-600 dark:bg-sky-900/40 dark:text-sky-400">
+                    <div className="mb-2 flex h-8 w-8 items-center justify-center rounded-full bg-[var(--brand-orange-soft)] text-xs font-bold text-[var(--brand-orange)]">
                       {testimonial.avatar}
                     </div>
-                    <p className="text-xs font-semibold text-slate-900 dark:text-white">
+                    <p className="text-xs font-semibold text-[var(--foreground)]">
                       {testimonial.name}
                     </p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">
+                    <p className="text-xs text-[var(--muted)]">
                       {testimonial.role}
                     </p>
-                    <p className="mt-2 text-xs italic text-slate-600 dark:text-slate-300">
-                      "{testimonial.quote}"
+                    <p className="mt-2 text-xs italic text-[var(--foreground-secondary)]">
+                      &ldquo;{testimonial.quote}&rdquo;
                     </p>
                   </div>
                 );
@@ -397,10 +411,10 @@ export function AuthPage({
             </div>
 
             <div className="mt-8 text-center">
-              <p className="text-sm font-semibold text-slate-900 dark:text-white">
+              <p className="text-sm font-semibold text-[var(--foreground)]">
                 Trusted by 10,000+ professionals
               </p>
-              <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+              <p className="mt-1 text-xs text-[var(--muted)]">
                 Join our community of successful candidates
               </p>
             </div>

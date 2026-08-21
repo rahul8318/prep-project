@@ -21,6 +21,7 @@ import {
   YAxis,
 } from "recharts";
 import { Button, Card, ProgressBar } from "../components/ui";
+import { MobileBottomNav } from "../components/MobileBottomNav";
 import { analyticsApi, type AnalyticsOverview } from "../services/analyticsApi";
 import { getStudyProgress } from "../services/studyProgress";
 import type { UserProfile } from "../types";
@@ -132,48 +133,45 @@ export function DashboardPage({
       label: "Overall prep",
       value: `${overview?.preparationPercentage ?? 0}%`,
       icon: Brain,
-      accent: "sky",
     },
     {
       label: "Questions viewed",
       value: String(readingProgress.viewedQuestionIds.length),
       icon: BookOpen,
-      accent: "violet",
     },
     {
       label: "Questions solved",
       value: String(overview?.solvedQuestions ?? 0),
       icon: Trophy,
-      accent: "emerald",
     },
     {
       label: "Reading time",
       value: `${Math.floor(readingProgress.readingSeconds / 60)}m ${readingProgress.readingSeconds % 60}s`,
       icon: Clock3,
-      accent: "amber",
     },
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
-      <aside className="fixed inset-y-0 left-0 hidden w-72 border-r border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900 lg:block">
+    <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)] transition-colors duration-200">
+      <aside className="fixed inset-y-0 left-0 hidden w-72 border-r border-[var(--border)] bg-[var(--surface)] p-5 lg:block">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <img
-              src="/logo.svg"
-              alt="InterviewHub"
-              className="h-10 w-10 rounded-xl object-cover"
-            />
+            <div className="relative">
+              <img
+                src="/PrepForgeBlack.png"
+                alt="PrepForge"
+                className="h-10 w-10 rounded-xl object-contain block dark:hidden"
+              />
+              <img
+                src="/logo.png"
+                alt="PrepForge"
+                className="h-10 w-10 rounded-xl object-contain hidden dark:block"
+              />
+            </div>
             <div>
-              <p className="text-lg font-bold">InterviewHub</p>
+              <p className="text-lg font-bold text-[var(--foreground)]">PrepForge</p>
             </div>
           </div>
-          <button
-            onClick={toggleTheme}
-            className="rounded-full border border-slate-200 px-2 py-1 text-xs dark:border-slate-700"
-          >
-            {theme === "dark" ? "Light" : "Dark"}
-          </button>
         </div>
 
         <nav className="mt-8 space-y-2 text-sm font-medium">
@@ -205,51 +203,53 @@ export function DashboardPage({
                   "/profile",
                 ][index]
               }
-              className={`flex items-center gap-3 rounded-xl px-3 py-2.5 ${index === 0 ? "bg-sky-50 text-sky-700 dark:bg-sky-950/50 dark:text-sky-300" : "text-slate-600 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800"}`}
+              className={`flex items-center gap-3 rounded-xl px-3 py-2.5 transition-all duration-200 ${index === 0 ? "bg-[var(--brand-orange-soft)] text-[var(--brand-orange)]" : "text-[var(--foreground-secondary)] hover:bg-[var(--brand-orange-soft)] hover:text-[var(--brand-orange)]"}`}
             >
               {item}
             </Link>
           ))}
         </nav>
 
-        <div className="mt-8 rounded-2xl bg-gradient-to-br from-sky-600 to-violet-600 p-4 text-white">
-          <p className="text-sm text-sky-100">Daily goal</p>
-          <p className="mt-2 text-2xl font-bold">
+        <div className="mt-8 rounded-2xl bg-gradient-to-br from-[var(--brand-orange)] to-[var(--brand-orange-hover)] p-4 text-white shadow-lg shadow-[var(--brand-orange-glow)]">
+          <p className="text-sm text-white/80">Daily goal</p>
+          <p className="mt-2 text-2xl font-bold text-white">
             {overview?.preparationPercentage ?? 0}%
           </p>
           <div className="mt-3">
             <ProgressBar
               value={overview?.preparationPercentage ?? 0}
-              className="bg-white/20"
+              className="bg-[var(--brand-orange-glow)]"
             />
           </div>
         </div>
 
-        <button
-          onClick={onLogout}
-          className="mt-8 w-full rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white dark:bg-slate-100 dark:text-slate-900"
-        >
-          Logout
-        </button>
+        <div className="mt-auto pt-8">
+          <button
+            onClick={onLogout}
+            className="w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-2.5 text-sm font-semibold text-[var(--foreground)] transition hover:border-[var(--brand-orange)] hover:text-[var(--brand-orange)]"
+          >
+            Logout
+          </button>
+        </div>
       </aside>
 
-      <div className="lg:pl-72">
-        <header className="border-b border-slate-200 bg-white/80 backdrop-blur-xl dark:border-slate-800 dark:bg-slate-900/80">
+      <div className="lg:pl-72 pb-20 lg:pb-0">
+        <header className="border-b border-[var(--border)] bg-[var(--surface)]/90 backdrop-blur-xl">
           <div className="flex items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
             <div>
-              <p className="text-sm text-slate-500 dark:text-slate-400">
+              <p className="text-sm text-[var(--foreground-secondary)]">
                 Good morning
               </p>
-              <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
+              <h1 className="text-2xl font-bold tracking-tight text-[var(--foreground)]">
                 {user?.name || "Learner"}
               </h1>
             </div>
             <div className="flex items-center gap-3">
-              <button className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium dark:border-slate-700 dark:bg-slate-950">
+              <button className="rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm font-medium text-[var(--foreground)] transition hover:border-[var(--brand-orange)] hover:text-[var(--brand-orange)]">
                 View plan
               </button>
               <Link to="/quiz">
-                <Button>
+                <Button className="gap-2">
                   Continue Preparation <ArrowRight size={16} />
                 </Button>
               </Link>
@@ -259,20 +259,18 @@ export function DashboardPage({
 
         <main className="space-y-6 px-4 py-6 sm:px-6 lg:px-8">
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-            {stats.map(({ label, value, icon: Icon, accent }) => (
-              <Card key={label} className="p-4">
+            {stats.map(({ label, value, icon: Icon }) => (
+              <Card key={label} className="p-4 transition-all duration-200 hover:-translate-y-1 hover:shadow-[var(--shadow-elevated)]">
                 <div className="flex items-center justify-between">
                   <div>
-                    <p className="text-sm text-slate-500 dark:text-slate-400">
+                    <p className="text-sm text-[var(--muted)]">
                       {label}
                     </p>
-                    <p className="mt-3 text-3xl font-bold text-slate-900 dark:text-white">
+                    <p className="mt-3 text-3xl font-bold text-[var(--foreground)]">
                       {value}
                     </p>
                   </div>
-                  <div
-                    className={`rounded-xl bg-${accent}-100 p-3 text-${accent}-600 dark:bg-${accent}-950/40 dark:text-${accent}-300`}
-                  >
+                  <div className="rounded-xl bg-[var(--brand-orange-soft)] p-3 text-[var(--brand-orange)]">
                     <Icon size={20} />
                   </div>
                 </div>
@@ -283,12 +281,12 @@ export function DashboardPage({
           {!loading ? (
             <>
               <div className="grid gap-6 xl:grid-cols-[1.3fr_0.7fr]">
-                <Card className="p-5">
+                <Card className="p-5 transition-all duration-200 hover:shadow-[var(--shadow-elevated)]">
                   <div className="mb-4 flex items-center justify-between">
-                    <h2 className="text-xl font-bold text-slate-900 dark:text-white">
+                    <h2 className="text-xl font-bold text-[var(--foreground)]">
                       Progress overview
                     </h2>
-                    <span className="text-sm text-slate-500 dark:text-slate-400">
+                    <span className="text-sm text-[var(--muted)]">
                       Last 7 days
                     </span>
                   </div>
@@ -297,33 +295,40 @@ export function DashboardPage({
                       <RechartsLineChart data={weeklyData}>
                         <CartesianGrid
                           strokeDasharray="3 3"
-                          stroke="#94a3b8"
+                          stroke="rgba(255,255,255,0.1)"
                           opacity={0.3}
                         />
-                        <XAxis dataKey="name" stroke="#94a3b8" />
-                        <YAxis stroke="#94a3b8" />
-                        <Tooltip />
+                        <XAxis dataKey="name" stroke="rgba(255,255,255,0.2)" />
+                        <YAxis stroke="rgba(255,255,255,0.2)" />
+                        <Tooltip
+                          contentStyle={{
+                            backgroundColor: "var(--surface-elevated)",
+                            border: "1px solid var(--border)",
+                            borderRadius: "12px",
+                            color: "var(--foreground)",
+                          }}
+                        />
                         <Line
                           type="monotone"
                           dataKey="solved"
-                          stroke="#38bdf8"
+                          stroke="var(--brand-orange)"
                           strokeWidth={3}
-                          dot={{ r: 4 }}
+                          dot={{ r: 4, fill: "var(--brand-orange)" }}
                         />
                         <Line
                           type="monotone"
                           dataKey="accuracy"
-                          stroke="#a78bfa"
+                          stroke="var(--brand-orange-hover)"
                           strokeWidth={3}
-                          dot={{ r: 4 }}
+                          dot={{ r: 4, fill: "var(--brand-orange-hover)" }}
                         />
                       </RechartsLineChart>
                     </ResponsiveContainer>
                   </div>
                 </Card>
 
-                <Card className="p-5">
-                  <h2 className="text-xl font-bold text-slate-900 dark:text-white">
+                <Card className="p-5 transition-all duration-200 hover:shadow-[var(--shadow-elevated)]">
+                  <h2 className="text-xl font-bold text-[var(--foreground)]">
                     Quick stats
                   </h2>
                   <div className="mt-5 space-y-4">
@@ -346,17 +351,17 @@ export function DashboardPage({
                     ].map(({ label, value, icon: Icon }) => (
                       <div
                         key={label}
-                        className="flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-800/40"
+                        className="flex items-center justify-between rounded-xl border border-[var(--border)] bg-[var(--surface-elevated)] p-3"
                       >
                         <div className="flex items-center gap-3">
-                          <div className="rounded-lg bg-sky-100 p-2 text-sky-700 dark:bg-sky-950/50 dark:text-sky-300">
+                          <div className="rounded-lg bg-[var(--brand-orange-soft)] p-2 text-[var(--brand-orange)]">
                             <Icon size={16} />
                           </div>
-                          <span className="text-sm text-slate-600 dark:text-slate-300">
+                          <span className="text-sm text-[var(--foreground-secondary)]">
                             {label}
                           </span>
                         </div>
-                        <span className="text-sm font-semibold text-slate-900 dark:text-white">
+                        <span className="text-sm font-semibold text-[var(--foreground)]">
                           {value}
                         </span>
                       </div>
@@ -366,8 +371,8 @@ export function DashboardPage({
               </div>
 
               <div className="grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
-                <Card className="p-5">
-                  <h2 className="text-xl font-bold text-slate-900 dark:text-white">
+                <Card className="p-5 transition-all duration-200 hover:shadow-[var(--shadow-elevated)]">
+                  <h2 className="text-xl font-bold text-[var(--foreground)]">
                     Category performance
                   </h2>
                   <div className="mt-5 h-64">
@@ -375,34 +380,41 @@ export function DashboardPage({
                       <BarChart data={categoryData}>
                         <CartesianGrid
                           strokeDasharray="3 3"
-                          stroke="#94a3b8"
+                          stroke="rgba(255,255,255,0.1)"
                           opacity={0.2}
                         />
-                        <XAxis dataKey="name" stroke="#94a3b8" />
-                        <YAxis stroke="#94a3b8" />
-                        <Tooltip />
+                        <XAxis dataKey="name" stroke="rgba(255,255,255,0.2)" />
+                        <YAxis stroke="rgba(255,255,255,0.2)" />
+                        <Tooltip
+                          contentStyle={{
+                            backgroundColor: "var(--surface-elevated)",
+                            border: "1px solid var(--border)",
+                            borderRadius: "12px",
+                            color: "var(--foreground)",
+                          }}
+                        />
                         <Bar
                           dataKey="score"
                           radius={[8, 8, 0, 0]}
-                          fill="#38bdf8"
+                          fill="var(--brand-orange)"
                         />
                       </BarChart>
                     </ResponsiveContainer>
                   </div>
                 </Card>
 
-                <Card className="p-5">
-                  <h2 className="text-xl font-bold text-slate-900 dark:text-white">
+                <Card className="p-5 transition-all duration-200 hover:shadow-[var(--shadow-elevated)]">
+                  <h2 className="text-xl font-bold text-[var(--foreground)]">
                     Weak topics
                   </h2>
                   <div className="mt-5 space-y-4">
                     {weakTopics.map(({ topic, percent }) => (
                       <div key={topic}>
                         <div className="mb-2 flex items-center justify-between text-sm">
-                          <span className="font-medium text-slate-700 dark:text-slate-200">
+                          <span className="font-medium text-[var(--foreground)]">
                             {topic}
                           </span>
-                          <span className="text-slate-500 dark:text-slate-400">
+                          <span className="text-[var(--muted)]">
                             {percent}%
                           </span>
                         </div>
@@ -410,7 +422,7 @@ export function DashboardPage({
                       </div>
                     ))}
                     {weakTopics.length === 0 && (
-                      <p className="text-sm text-slate-500 dark:text-slate-400">
+                      <p className="text-sm text-[var(--muted)]">
                         Attempt some quizzes to see weak topics here.
                       </p>
                     )}
@@ -420,10 +432,11 @@ export function DashboardPage({
             </>
           ) : (
             <Card className="p-6">
-              <div className="h-64 animate-pulse rounded-2xl bg-slate-100 dark:bg-slate-800" />
+              <div className="h-64 animate-pulse rounded-2xl bg-[var(--surface-elevated)]" />
             </Card>
           )}
         </main>
+        <MobileBottomNav />
       </div>
     </div>
   );
