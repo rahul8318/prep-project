@@ -61,8 +61,9 @@ function App() {
   useEffect(() => {
     const initAuth = async () => {
       const token = localStorage.getItem("interviewhub-token");
+      const refreshToken = localStorage.getItem("interviewhub-refresh-token");
       if (token) {
-        apiClient.setToken(token);
+        apiClient.setTokens(token, refreshToken);
         try {
           const res = await authApi.getMe();
           if (res.success && res.data) {
@@ -84,13 +85,15 @@ function App() {
             setIsAuthenticated(true);
           } else {
             localStorage.removeItem("interviewhub-token");
-            apiClient.setToken(null);
+            localStorage.removeItem("interviewhub-refresh-token");
+            apiClient.setTokens(null);
             setUser(null);
             setIsAuthenticated(false);
           }
         } catch {
           localStorage.removeItem("interviewhub-token");
-          apiClient.setToken(null);
+          localStorage.removeItem("interviewhub-refresh-token");
+          apiClient.setTokens(null);
           setUser(null);
           setIsAuthenticated(false);
         }
@@ -122,11 +125,11 @@ function App() {
     }
   }, [theme]);
 
-  const login = (profile: UserProfile, token?: string) => {
+  const login = (profile: UserProfile, token?: string, refreshToken?: string) => {
     setUser(profile);
     setIsAuthenticated(true);
     if (token) {
-      apiClient.setToken(token);
+      apiClient.setTokens(token, refreshToken);
     }
   };
 
@@ -138,7 +141,7 @@ function App() {
     }
     setUser(null);
     setIsAuthenticated(false);
-    apiClient.setToken(null);
+    apiClient.setTokens(null);
   };
 
   useEffect(() => {
