@@ -55,7 +55,7 @@ function App() {
     "interviewhub-user",
     null,
   );
-  const [isAuthenticated, setIsAuthenticated] = useState(Boolean(user));
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
