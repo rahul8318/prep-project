@@ -276,6 +276,7 @@ export function AuthPage({
                     <input
                       type={showPassword ? "text" : "password"}
                       value={form.password}
+                      autoComplete="off"
                       onChange={(e) =>
                         setForm((prev) => ({
                           ...prev,
