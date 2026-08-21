@@ -1,4 +1,4 @@
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import { User } from "../models/User";
 import { QuizResult } from "../models/QuizResult";
 import { InterviewResult } from "../models/InterviewResult";
