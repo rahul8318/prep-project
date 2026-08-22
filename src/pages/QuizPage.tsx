@@ -96,8 +96,13 @@ export function QuizPage({
         difficulty,
         count: questionCount,
       });
+      console.log("Quiz start response:", res);
 
       if (res.success && res.data) {
+        if (!res.data.questions || res.data.questions.length === 0) {
+          setError("No questions available for the selected filters. Try a different category or difficulty.");
+          return;
+        }
         setQuestions(res.data.questions);
         setSessionId(res.data.sessionId);
         setCurrentIndex(0);
@@ -108,7 +113,8 @@ export function QuizPage({
       } else {
         setError("Failed to start quiz. Please try again.");
       }
-    } catch {
+    } catch (err) {
+      console.error("Quiz start error:", err);
       setError("Failed to start quiz. Please try again.");
     } finally {
       setLoading(false);

@@ -1,7 +1,6 @@
 import { Router } from "express";
 import authRoutes from "./auth.routes";
 import userRoutes from "./user.routes";
-import questionRoutes from "./question.routes";
 import quizRoutes from "./quiz.routes";
 import interviewRoutes from "./interview.routes";
 import bookmarkRoutes from "./bookmark.routes";
@@ -15,7 +14,6 @@ const router = Router();
 
 router.use("/auth", authRoutes);
 router.use("/users", userRoutes);
-router.use("/questions", questionRoutes);
 router.use("/quizzes", quizRoutes);
 router.use("/interviews", interviewRoutes);
 router.use("/bookmarks", bookmarkRoutes);
@@ -25,5 +23,5 @@ router.use("/analytics", analyticsRoutes);
 router.use("/achievements", achievementRoutes);
 router.use("/admin", adminRoutes);
 
-export { authRoutes, userRoutes, questionRoutes, quizRoutes, interviewRoutes, bookmarkRoutes, flashcardRoutes, dailyChallengeRoutes, analyticsRoutes, achievementRoutes, adminRoutes };
+export { authRoutes, userRoutes, quizRoutes, interviewRoutes, bookmarkRoutes, flashcardRoutes, dailyChallengeRoutes, analyticsRoutes, achievementRoutes, adminRoutes };
 export default router;

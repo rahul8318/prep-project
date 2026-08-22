@@ -1,5 +1,4 @@
 import { Bookmark } from "../models/Bookmark";
-import { Question } from "../models/Question";
 import { getPagination, getSkip } from "../utils/pagination";
 
 export const getBookmarks = async (userId: string, pagination: { page?: number; limit?: number }) => {
@@ -10,8 +9,7 @@ export const getBookmarks = async (userId: string, pagination: { page?: number; 
     Bookmark.find({ userId })
       .skip(skip)
       .limit(pg.limit)
-      .sort({ createdAt: -1 })
-      .populate("questionId", "question category topic difficulty type options correctAnswer explanation tags codeExample"),
+      .sort({ createdAt: -1 }),
     Bookmark.countDocuments({ userId }),
   ]);
 

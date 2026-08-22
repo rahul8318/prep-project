@@ -9,7 +9,7 @@ import type { FormState, UserProfile } from "../types";
 export function AuthPage({
   onLogin,
 }: {
-  onLogin: (user: UserProfile, token?: string) => void;
+  onLogin: (user: UserProfile, token?: string, refreshToken?: string) => void;
 }) {
   const navigate = useNavigate();
   const [mode, setMode] = useState<"login" | "register" | "forgot" | "reset">(
@@ -60,7 +60,7 @@ export function AuthPage({
           password: form.password,
         });
         if (res.success && res.data) {
-          apiClient.setToken(res.data.accessToken);
+          apiClient.setTokens(res.data.accessToken, res.data.refreshToken);
           const userProfile: UserProfile = {
             id: res.data.user.id,
             name: res.data.user.name,
@@ -77,7 +77,7 @@ export function AuthPage({
               .toUpperCase(),
           };
           setMessage("Login successful. Redirecting to your dashboard...");
-          onLogin(userProfile, res.data.accessToken);
+          onLogin(userProfile, res.data.accessToken, res.data.refreshToken);
           navigate("/dashboard", { replace: true });
         } else {
           setMessage("Invalid credentials. Please try again.");
@@ -92,7 +92,7 @@ export function AuthPage({
           password: form.password,
         });
         if (res.success && res.data) {
-          apiClient.setToken(res.data.accessToken);
+          apiClient.setTokens(res.data.accessToken, res.data.refreshToken);
           const userProfile: UserProfile = {
             id: res.data.user.id,
             name: res.data.user.name,
@@ -108,8 +108,8 @@ export function AuthPage({
               .slice(0, 2)
               .toUpperCase(),
           };
-          setMessage("Registration successful. Welcome to PrepForge!");
-          onLogin(userProfile, res.data.accessToken);
+          setMessage("Registration successful. Welcome to InterviewHub!");
+          onLogin(userProfile, res.data.accessToken, res.data.refreshToken);
           navigate("/dashboard", { replace: true });
         } else {
           setMessage("Registration failed. Please try again.");
@@ -276,6 +276,7 @@ export function AuthPage({
                     <input
                       type={showPassword ? "text" : "password"}
                       value={form.password}
+                      autoComplete="off"
                       onChange={(e) =>
                         setForm((prev) => ({
                           ...prev,

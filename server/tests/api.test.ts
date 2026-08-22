@@ -49,22 +49,11 @@ describe("Auth Endpoints", () => {
 });
 
 describe("Question Endpoints", () => {
-  it("should get questions with pagination", async () => {
+  it("should return 404 for removed question endpoints", async () => {
     const res = await request(app)
       .get("/api/questions?page=1&limit=10");
 
-    expect(res.status).toBe(200);
-    expect(res.body.success).toBe(true);
-    expect(res.body.data).toBeDefined();
-    expect(res.body.data.pagination).toBeDefined();
-  });
-
-  it("should require admin to create question", async () => {
-    const res = await request(app)
-      .post("/api/questions")
-      .send({ question: "Test", category: "JavaScript", topic: "Test", difficulty: "Beginner", type: "Technical", correctAnswer: "A", explanation: "Test" });
-
-    expect(res.status).toBe(401);
+    expect(res.status).toBe(404);
   });
 });
 
