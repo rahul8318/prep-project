@@ -16,6 +16,7 @@ import { useLocalStorage } from "./hooks/useLocalStorage";
 import { authApi } from "./services/authApi";
 import { apiClient } from "./services/api";
 import { Navbar } from "./components/Navbar";
+import { Footer } from "./components/Footer";
 import type { UserProfile } from "./types";
 
 function ProtectedRoutes({
@@ -285,6 +286,7 @@ function App() {
             />
           </Route>
         </Routes>
+        <Footer />
       </div>
     </div>
   );

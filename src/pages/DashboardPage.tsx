@@ -257,10 +257,7 @@ export function DashboardPage({
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <button className="rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm font-medium text-[var(--foreground)] transition hover:border-[var(--brand-orange)] hover:text-[var(--brand-orange)]">
-                View plan
-              </button>
-              <Link to="/quiz">
+              <Link to="/questions">
                 <Button className="gap-2">
                   Continue Preparation <ArrowRight size={16} />
                 </Button>

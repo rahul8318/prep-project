@@ -52,7 +52,7 @@ class ApiClient {
     this.isRefreshing = true;
     this.refreshPromise = (async () => {
       try {
-        const response = await fetch("/api/auth/refresh", {
+        const response = await fetch(`${API_BASE}/auth/refresh`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ refreshToken }),
