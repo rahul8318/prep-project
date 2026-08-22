@@ -1,14 +1,7 @@
 import { Link } from "react-router-dom";
 import {
-  BookOpen,
-  Brain,
-  Flame,
   LayoutDashboard,
   LogOut,
-  BarChart3,
-  Bookmark,
-  Flashlight,
-  Star,
   User,
   Menu,
   X,
@@ -19,14 +12,6 @@ import { useState } from "react";
 
 const navItems = [
   { label: "Dashboard", to: "/dashboard", icon: LayoutDashboard },
-  { label: "Questions", to: "/questions", icon: BookOpen },
-  { label: "Quiz", to: "/quiz", icon: Brain },
-  { label: "Mock Interview", to: "/mock", icon: Flame },
-  { label: "Flashcards", to: "/flashcards", icon: Flashlight },
-  { label: "Daily", to: "/daily", icon: Star },
-  { label: "Analytics", to: "/analytics", icon: BarChart3 },
-  { label: "Bookmarks", to: "/bookmarks", icon: Bookmark },
-  { label: "HR Prep", to: "/hr", icon: User },
   { label: "Profile", to: "/profile", icon: User },
 ];
 
@@ -46,28 +31,39 @@ export function Navbar({
   return (
     <header className="sticky top-0 z-50 border-b border-[var(--border)] bg-[var(--surface)]/90 backdrop-blur-xl transition-colors duration-200">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
-        <div className="flex items-center gap-3">
-          <Link to="/dashboard" className="flex items-center gap-3">
-            <div className="relative">
-              <img
-                src="/PrepForgeBlack.png"
-                alt="PrepForge"
-                className="h-9 w-9 rounded-xl object-contain block dark:hidden"
-              />
-              <img
-                src="/logo.png"
-                alt="PrepForge"
-                className="h-9 w-9 rounded-xl object-contain hidden dark:block"
-              />
-            </div>
-            <span className="text-lg font-bold tracking-tight text-[var(--foreground)]">
-              PrepForge
-            </span>
-          </Link>
-        </div>
+        <Link to="/dashboard" className="flex items-center gap-3">
+          <div className="relative">
+            <img
+              src="/PrepForgeBlack.png"
+              alt="PrepForge"
+              className="h-9 w-9 rounded-xl object-contain block dark:hidden"
+            />
+            <img
+              src="/logo.png"
+              alt="PrepForge"
+              className="h-9 w-9 rounded-xl object-contain hidden dark:block"
+            />
+          </div>
+          <span className="text-lg font-bold tracking-tight text-[var(--foreground)]">
+            PrepForge
+          </span>
+        </Link>
 
         <div className="flex items-center gap-2">
           <ThemeToggle dark={theme === "dark"} onToggle={toggleTheme} />
+
+          <nav className="hidden items-center gap-1 lg:flex">
+            {navItems.map((item) => (
+              <Link
+                key={item.to}
+                to={item.to}
+                className="inline-flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-medium text-[var(--foreground-secondary)] transition-colors hover:bg-[var(--brand-orange-soft)] hover:text-[var(--brand-orange)]"
+              >
+                <item.icon size={18} />
+                {item.label}
+              </Link>
+            ))}
+          </nav>
 
           <button
             onClick={() => setMenuOpen((prev) => !prev)}

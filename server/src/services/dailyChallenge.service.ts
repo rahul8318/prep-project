@@ -1,4 +1,4 @@
-import { Question } from "../models/Question";
+import { allQuestions } from "../data/questions";
 import { DailyChallenge } from "../models/DailyChallenge";
 import { DailyChallengeProgress } from "../models/DailyChallengeProgress";
 
@@ -8,16 +8,11 @@ export const getDailyChallenge = async () => {
   let challenge = await DailyChallenge.findOne({ date: today });
 
   if (!challenge) {
-    const totalQuestions = await Question.countDocuments();
-    const questionCount = Math.min(5, totalQuestions);
+    const questionCount = Math.min(5, allQuestions.length);
 
-    const pipeline = [
-      { $sample: { size: questionCount } },
-      { $project: { _id: 1 } },
-    ];
-
-    const samples = await Question.aggregate(pipeline) as Array<{ _id: any }>;
-    const questionIds = samples.map((s) => s._id.toString());
+    const shuffled = [...allQuestions].sort(() => Math.random() - 0.5);
+    const selected = shuffled.slice(0, questionCount);
+    const questionIds = selected.map((q) => `${q.category}-${q.topic}-${q.question}`.replace(/[^a-zA-Z0-9]/g, "_"));
 
     challenge = await DailyChallenge.create({
       date: today,
@@ -25,12 +20,12 @@ export const getDailyChallenge = async () => {
     });
   }
 
-  const questions = await Question.find({
-    _id: { $in: challenge.questionIds },
-  });
+  const questions = allQuestions.filter((q) =>
+    challenge.questionIds.includes(`${q.category}-${q.topic}-${q.question}`.replace(/[^a-zA-Z0-9]/g, "_")),
+  );
 
   const questionsWithoutAnswers = questions.map((q) => ({
-    _id: q._id.toString(),
+    _id: `${q.category}-${q.topic}-${q.question}`.replace(/[^a-zA-Z0-9]/g, "_"),
     question: q.question,
     category: q.category,
     topic: q.topic,
@@ -38,7 +33,6 @@ export const getDailyChallenge = async () => {
     type: q.type,
     options: q.options,
     tags: q.tags,
-    codeExample: q.codeExample,
   }));
 
   return {

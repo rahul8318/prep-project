@@ -1,4 +1,4 @@
-import { Question } from "../models/Question";
+import { allQuestions, categories as allCategories } from "../data/questions";
 import { InterviewResult } from "../models/InterviewResult";
 
 interface InterviewSession {
@@ -86,30 +86,39 @@ export const startInterview = async (
   };
 
   const categories = categoryMap[category || ""] || [];
-  const query: Record<string, unknown> = { type: "MCQ" };
+  let filtered = allQuestions;
 
   if (categories.length > 0) {
-    query.category = { $in: categories };
+    filtered = filtered.filter((q) => categories.includes(q.category));
   }
-  if (difficulty) query.difficulty = difficulty;
+  if (difficulty) filtered = filtered.filter((q) => q.difficulty === difficulty);
 
-  const questions = await Question.find(query).limit(count * 3);
-  const shuffled = shuffleArray(questions);
+  const shuffled = shuffleArray(filtered);
   const selected = shuffled.slice(0, count);
 
   if (selected.length === 0) {
     throw new Error("No questions available for the selected category and difficulty.");
   }
 
-  const sessionQuestions = selected.map((q: any) => ({
-    _id: q._id.toString(),
-    question: q.question,
-    topic: q.topic,
-    difficulty: q.difficulty,
-    options: shuffleArray([...q.options]),
-    correctAnswer: q.correctAnswer,
-    explanation: q.explanation,
-  }));
+  const sessionQuestions = selected.map((q) => {
+    const opts = Array.isArray(q.options) ? q.options : [];
+    if (opts.length === 0 || !opts.includes(q.correctAnswer)) {
+      throw new Error(`Invalid question data for "${q.question}"`);
+    }
+    return {
+      _id: `${q.category}-${q.topic}-${q.question}`.replace(/[^a-zA-Z0-9]/g, "_"),
+      question: q.question,
+      topic: q.topic,
+      difficulty: q.difficulty,
+      options: shuffleArray([...opts]),
+      correctAnswer: q.correctAnswer,
+      explanation: q.explanation,
+    };
+  });
+
+  if (sessionQuestions.length === 0) {
+    throw new Error("No valid questions available for the selected category and difficulty.");
+  }
 
   const sessionId = `interview_${Date.now()}_${Math.random().toString(36).slice(2, 9)}`;
   interviewSessions.set(sessionId, {

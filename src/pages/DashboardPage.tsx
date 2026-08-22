@@ -5,7 +5,9 @@ import {
   Clock3,
   Flame,
   LineChart,
+  Menu,
   Trophy,
+  X,
   Zap,
 } from "lucide-react";
 import { Link } from "react-router-dom";
@@ -292,14 +294,14 @@ export function DashboardPage({
                   </div>
                   <div className="h-64">
                     <ResponsiveContainer width="100%" height="100%">
-                      <RechartsLineChart data={weeklyData}>
-                        <CartesianGrid
-                          strokeDasharray="3 3"
-                          stroke="rgba(255,255,255,0.1)"
-                          opacity={0.3}
-                        />
-                        <XAxis dataKey="name" stroke="rgba(255,255,255,0.2)" />
-                        <YAxis stroke="rgba(255,255,255,0.2)" />
+                   <RechartsLineChart data={weeklyData}>
+                    <CartesianGrid
+                      strokeDasharray="3 3"
+                      stroke={theme === "dark" ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.08)"}
+                      opacity={0.3}
+                    />
+                    <XAxis dataKey="name" stroke={theme === "dark" ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.3)"} />
+                    <YAxis stroke={theme === "dark" ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.3)"} />
                         <Tooltip
                           contentStyle={{
                             backgroundColor: "var(--surface-elevated)",
@@ -380,11 +382,11 @@ export function DashboardPage({
                       <BarChart data={categoryData}>
                         <CartesianGrid
                           strokeDasharray="3 3"
-                          stroke="rgba(255,255,255,0.1)"
+                          stroke={theme === "dark" ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.08)"}
                           opacity={0.2}
                         />
-                        <XAxis dataKey="name" stroke="rgba(255,255,255,0.2)" />
-                        <YAxis stroke="rgba(255,255,255,0.2)" />
+                        <XAxis dataKey="name" stroke={theme === "dark" ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.3)"} />
+                        <YAxis stroke={theme === "dark" ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.3)"} />
                         <Tooltip
                           contentStyle={{
                             backgroundColor: "var(--surface-elevated)",

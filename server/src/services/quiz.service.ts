@@ -1,4 +1,4 @@
-import { Question } from "../models/Question";
+import { allQuestions } from "../data/questions";
 import { QuizResult } from "../models/QuizResult";
 
 interface QuizSession {
@@ -31,8 +31,8 @@ const shuffleArray = <T>(array: T[]): T[] => {
 
 const validateQuestion = (q: any): void => {
   const opts = q.options;
-  if (!Array.isArray(opts) || opts.length !== 4) {
-    throw new Error(`Question "${q.question}" must have exactly 4 options`);
+  if (!Array.isArray(opts) || opts.length < 2) {
+    throw new Error(`Question "${q.question}" must have at least 2 options`);
   }
   if (!opts.includes(q.correctAnswer)) {
     throw new Error(`Correct answer for "${q.question}" must be one of the options`);
@@ -46,17 +46,17 @@ export const startQuiz = async (
   const { category, difficulty, count = 10 } = filters;
   const query: Record<string, unknown> = { type: "MCQ" };
 
-  if (category) query.category = category;
-  if (difficulty) query.difficulty = difficulty;
+  let filtered = allQuestions;
+  if (category) filtered = filtered.filter((q) => q.category === category);
+  if (difficulty) filtered = filtered.filter((q) => q.difficulty === difficulty);
 
-  const questions = await Question.find(query).limit(count * 3);
-  const shuffled = shuffleArray(questions);
+  const shuffled = shuffleArray(filtered);
   const selected = shuffled.slice(0, count);
 
-  const sessionQuestions = selected.map((q: any) => {
+  const sessionQuestions = selected.map((q) => {
     validateQuestion(q);
     return {
-      _id: q._id.toString(),
+      _id: `${q.category}-${q.topic}-${q.question}`.replace(/[^a-zA-Z0-9]/g, "_"),
       question: q.question,
       options: shuffleArray([...q.options]),
       correctAnswer: q.correctAnswer,

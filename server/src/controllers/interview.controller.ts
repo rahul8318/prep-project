@@ -14,7 +14,12 @@ export const startInterview = async (req: AuthRequest, res: Response) => {
 
 export const submitAnswer = async (req: AuthRequest, res: Response) => {
   try {
-    const result = await interviewService.submitAnswer(req.user!.id, req.body);
+    const sessionId = req.params.id as string;
+    const result = await interviewService.submitAnswer(req.user!.id, {
+      sessionId,
+      questionId: req.body.questionId,
+      answer: req.body.answer,
+    });
     sendSuccess(res, result, "Answer submitted successfully");
   } catch (error) {
     sendError(res, "Failed to submit answer", 500, [(error as Error).message]);
@@ -23,7 +28,8 @@ export const submitAnswer = async (req: AuthRequest, res: Response) => {
 
 export const nextQuestion = async (req: AuthRequest, res: Response) => {
   try {
-    const result = await interviewService.nextQuestion(req.user!.id, req.body.sessionId);
+    const sessionId = req.params.id as string;
+    const result = await interviewService.nextQuestion(req.user!.id, sessionId);
     sendSuccess(res, result, "Next question retrieved");
   } catch (error) {
     sendError(res, "Failed to get next question", 500, [(error as Error).message]);
