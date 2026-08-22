@@ -65,7 +65,7 @@ export function DailyChallengePage({
     return () => {
       cancelled = true;
     };
-  });
+  }, [user]);
 
   const toggleDone = async (questionId: string) => {
     if (!user) {

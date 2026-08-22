@@ -255,6 +255,7 @@ function App() {
               element={
                 <AnalyticsPage
                   user={user}
+                  theme={theme}
                 />
               }
             />

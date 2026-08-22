@@ -1,10 +1,10 @@
 import dotenv from "dotenv";
+dotenv.config();
+
 import app from "./app";
 import { connectDB } from "./config/db";
 import mongoose from "mongoose";
 import { config } from "./config/env";
-
-dotenv.config();
 
 const isVercel = process.env.VERCEL === "1";
 

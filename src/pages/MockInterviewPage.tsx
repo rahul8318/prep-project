@@ -76,8 +76,13 @@ export function MockInterviewPage({
         difficulty,
         count: 5,
       });
+      console.log("Interview start response:", res);
 
       if (res.success && res.data) {
+        if (!res.data.currentQuestion) {
+          setError("No questions available for the selected filters. Try a different mode or difficulty.");
+          return;
+        }
         setSessionId(res.data.sessionId);
         setCurrentQuestion(res.data.currentQuestion);
         setStarted(true);
@@ -88,7 +93,8 @@ export function MockInterviewPage({
       } else {
         setError("Failed to start interview. Please try again.");
       }
-    } catch {
+    } catch (err) {
+      console.error("Interview start error:", err);
       setError("Failed to start interview. Please try again.");
     } finally {
       setLoading(false);

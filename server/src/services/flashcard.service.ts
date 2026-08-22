@@ -1,13 +1,11 @@
-import { Question } from "../models/Question";
+import { allQuestions } from "../data/questions";
 import { FlashcardProgress } from "../models/FlashcardProgress";
 import { FlashcardStatus } from "../types";
 
 export const getFlashcards = async (userId: string) => {
-  const questions = await Question.find({
-    type: { $in: ["Technical", "HR"] },
-  }).sort({ createdAt: -1 });
+  const questions = allQuestions;
 
-  const questionIds = questions.map((q: any) => q._id.toString());
+  const questionIds = questions.map((q) => `${q.category}-${q.topic}-${q.question}`.replace(/[^a-zA-Z0-9]/g, "_"));
 
   const progressRecords = await FlashcardProgress.find({
     userId,
@@ -25,20 +23,22 @@ export const getFlashcards = async (userId: string) => {
     ]),
   );
 
-  const flashcards = questions.map((q: any) => ({
-    _id: q._id.toString(),
-    question: q.question,
-    category: q.category,
-    topic: q.topic,
-    difficulty: q.difficulty,
-    type: q.type,
-    options: q.options,
-    correctAnswer: q.correctAnswer,
-    explanation: q.explanation,
-    tags: q.tags,
-    codeExample: q.codeExample,
-    progress: progressMap.get(q._id.toString()) || null,
-  }));
+  const flashcards = questions.map((q) => {
+    const questionId = `${q.category}-${q.topic}-${q.question}`.replace(/[^a-zA-Z0-9]/g, "_");
+    return {
+      _id: questionId,
+      question: q.question,
+      category: q.category,
+      topic: q.topic,
+      difficulty: q.difficulty,
+      type: q.type,
+      options: q.options,
+      correctAnswer: q.correctAnswer,
+      explanation: q.explanation,
+      tags: q.tags,
+      progress: progressMap.get(questionId) || null,
+    };
+  });
 
   return flashcards;
 };

@@ -24,19 +24,6 @@ export const changePasswordSchema = Joi.object({
   newPassword: Joi.string().min(6).required(),
 });
 
-export const questionSchema = Joi.object({
-  question: Joi.string().required(),
-  category: Joi.string().required(),
-  topic: Joi.string().required(),
-  difficulty: Joi.string().valid("Beginner", "Intermediate", "Advanced").required(),
-  type: Joi.string().valid("MCQ", "Technical", "HR", "Coding").required(),
-  options: Joi.array().items(Joi.string()).optional(),
-  correctAnswer: Joi.string().required(),
-  explanation: Joi.string().required(),
-  tags: Joi.array().items(Joi.string()).optional(),
-  codeExample: Joi.string().optional(),
-});
-
 export const startQuizSchema = Joi.object({
   category: Joi.string().optional(),
   difficulty: Joi.string().optional(),
