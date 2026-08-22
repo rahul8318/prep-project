@@ -54,6 +54,7 @@ export function DashboardPage({
     getStudyProgress(user?.id),
   );
   const [loading, setLoading] = useState(true);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -238,13 +239,22 @@ export function DashboardPage({
       <div className="lg:pl-72 pb-20 lg:pb-0">
         <header className="border-b border-[var(--border)] bg-[var(--surface)]/90 backdrop-blur-xl">
           <div className="flex items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
-            <div>
-              <p className="text-sm text-[var(--foreground-secondary)]">
-                Good morning
-              </p>
-              <h1 className="text-2xl font-bold tracking-tight text-[var(--foreground)]">
-                {user?.name || "Learner"}
-              </h1>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setMobileMenuOpen(true)}
+                className="lg:hidden inline-flex items-center justify-center rounded-xl border border-[var(--border)] bg-[var(--surface)] p-2 text-[var(--foreground)] transition-colors hover:border-[var(--brand-orange)] hover:text-[var(--brand-orange)]"
+                aria-label="Open menu"
+              >
+                <Menu size={20} />
+              </button>
+              <div>
+                <p className="text-sm text-[var(--foreground-secondary)]">
+                  Good morning
+                </p>
+                <h1 className="text-2xl font-bold tracking-tight text-[var(--foreground)]">
+                  {user?.name || "Learner"}
+                </h1>
+              </div>
             </div>
             <div className="flex items-center gap-3">
               <button className="rounded-xl border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm font-medium text-[var(--foreground)] transition hover:border-[var(--brand-orange)] hover:text-[var(--brand-orange)]">
@@ -258,6 +268,99 @@ export function DashboardPage({
             </div>
           </div>
         </header>
+
+        {mobileMenuOpen && (
+          <div className="fixed inset-0 z-50 lg:hidden">
+            <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setMobileMenuOpen(false)} />
+            <div className="absolute inset-y-0 left-0 w-72 border-r border-[var(--border)] bg-[var(--surface)] p-5 shadow-2xl">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="relative">
+                    <img
+                      src="/PrepForgeBlack.png"
+                      alt="PrepForge"
+                      className="h-10 w-10 rounded-xl object-contain block dark:hidden"
+                    />
+                    <img
+                      src="/logo.png"
+                      alt="PrepForge"
+                      className="h-10 w-10 rounded-xl object-contain hidden dark:block"
+                    />
+                  </div>
+                  <div>
+                    <p className="text-lg font-bold text-[var(--foreground)]">PrepForge</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-2 text-[var(--foreground)] transition-colors hover:border-[var(--brand-orange)] hover:text-[var(--brand-orange)]"
+                  aria-label="Close menu"
+                >
+                  <X size={20} />
+                </button>
+              </div>
+
+              <nav className="mt-8 space-y-2 text-sm font-medium">
+                {[
+                  "Dashboard",
+                  "Question Bank",
+                  "Quiz",
+                  "Mock Interview",
+                  "Flashcards",
+                  "Daily Challenge",
+                  "Analytics",
+                  "Bookmarks",
+                  "HR Preparation",
+                  "Profile",
+                ].map((item, index) => (
+                  <Link
+                    key={item}
+                    to={
+                      [
+                        "/dashboard",
+                        "/questions",
+                        "/quiz",
+                        "/mock",
+                        "/flashcards",
+                        "/daily",
+                        "/analytics",
+                        "/bookmarks",
+                        "/hr",
+                        "/profile",
+                      ][index]
+                    }
+                    onClick={() => setMobileMenuOpen(false)}
+                    className={`flex items-center gap-3 rounded-xl px-3 py-2.5 transition-all duration-200 ${index === 0 ? "bg-[var(--brand-orange-soft)] text-[var(--brand-orange)]" : "text-[var(--foreground-secondary)] hover:bg-[var(--brand-orange-soft)] hover:text-[var(--brand-orange)]"}`}
+                  >
+                    {item}
+                  </Link>
+                ))}
+              </nav>
+
+              <div className="mt-8 rounded-2xl bg-gradient-to-br from-[var(--brand-orange)] to-[var(--brand-orange-hover)] p-4 text-white shadow-lg shadow-[var(--brand-orange-glow)]">
+                <p className="text-sm text-white/80">Daily goal</p>
+                <p className="mt-2 text-2xl font-bold text-white">
+                  {overview?.preparationPercentage ?? 0}%
+                </p>
+                <div className="mt-3">
+                  <ProgressBar
+                    value={overview?.preparationPercentage ?? 0}
+                    className="bg-[var(--brand-orange-glow)]"
+                  />
+                </div>
+              </div>
+
+              <div className="mt-auto pt-8">
+                <button
+                  onClick={onLogout}
+                  className="w-full rounded-xl border border-[var(--border)] bg-[var(--surface)] px-4 py-2.5 text-sm font-semibold text-[var(--foreground)] transition hover:border-[var(--brand-orange)] hover:text-[var(--brand-orange)]"
+                >
+                  Logout
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         <main className="space-y-6 px-4 py-6 sm:px-6 lg:px-8">
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">

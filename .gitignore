@@ -5,3 +5,5 @@ dist
 *.log
 server/.env
 server/node_modules
+.vercel
+.env*
